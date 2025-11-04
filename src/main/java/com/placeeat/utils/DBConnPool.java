@@ -1,4 +1,5 @@
-package com.palceeat.utils;
+package com.placeeat.utils;
+
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

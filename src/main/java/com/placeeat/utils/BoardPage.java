@@ -1,4 +1,4 @@
-package com.palceeat.utils;
+package com.placeeat.utils;
 
 public class BoardPage {
 	// 페이징 처리 메서드
