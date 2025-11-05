@@ -141,8 +141,11 @@
 
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
 		integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-
 	<style>
+		<jsp:include page="../Resources/CSS/FooterCSS.jsp" />
+	</style>
+	<style>
+		
 		/* 카드 이미지 공통 스타일 */
 		img.card-img-top {
 			object-fit: cover;
@@ -157,7 +160,7 @@
 			padding: 5px;
 			border: 1px solid #ddd;
 			border-radius: 5px;
-			background-color: #91d7f2;
+			background-color: #75b3d8;
 		}
 		
 		.card-text{
@@ -166,6 +169,12 @@
         }
 
 		/* 태그 버튼 활성화 시 반전(회색 배경 + 흰 글씨) */
+		.tag.btn.btn-outline-secondary:hover {
+			color: #fff;
+			background-color: #5a90bf;
+			border-color: #fff;
+		}
+		
 		.tag.btn.btn-outline-secondary.active {
 			color: #fff;
 			background-color: #385da6;
@@ -183,7 +192,7 @@
 	</script>
 </head>
 
-<body class="container py-3">
+<body class="container-fluid pt-3">
 
 	<!-- ================================================================================================================== -->
 	<!--                                            게시판 (카드 목록)  
@@ -208,7 +217,7 @@
                                     <small class="text-muted">조회수: ${row.viewCount}</small><br>
                                     <small class="text-muted">작성일: ${row.createdAt}</small>
 								</p>
-								<a href="../mvcboard/view.do?idx=${row.boardId}" class="stretched-link" aria-label="${row.title}"></a>
+								<a href="../mvcboard/view.do?boardId=${row.boardId}" class="stretched-link" aria-label="${row.title}"></a>
 							</div>
 						</div>
 					</div>
@@ -431,5 +440,7 @@
 			})();
 		});
 	</script>
+	
+	<jsp:include page="Footer.jsp" />
 </body>
 </html>

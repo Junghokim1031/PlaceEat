@@ -92,7 +92,7 @@
 		console.log("View.jsp 로드 완료");
 	</script>
 </head>
-<body>
+<body class="container-fluid py-3">
 	<!-- 페이지에 문제 없는지 확인 -->
 <%
 	Map<String,Object> dto = new HashMap<>();
@@ -241,7 +241,7 @@
 	<!-- 지도 출력 -->
 		<tr id="staticMap">
 			
-			<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey="></script>
+			<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<APP_KEY_HERE>"></script>
 			<script>
 			// 이미지 지도에서 마커가 표시될 위치입니다 
 			var markerPosition  = new kakao.maps.LatLng(${dto.latitude}, ${dto.longitude}); 
@@ -299,7 +299,17 @@
 				<script>
 				$(function() {
 					$(document).on("click", "#like", function (e) {
-						e.preventDefault();
+						/* e.preventDefault();
+						HttpSession session = request.getSession(true);
+						Object userId = session.getAttribute("userId");
+						if(!userId){
+							alert("로그인이 필요합니다."); 
+							return;
+						}
+						else{
+							String userIdStr = userId.toString();
+							String boardId = 
+						} */
 						const $btn = $(this);
 						const userId = $btn.data("userId");
 						const boardId = $btn.data("board");
@@ -320,6 +330,15 @@
 					});
 				});
 				</script>
+			</td>
+			<td>
+				<c:if test="${dto.userId eq sessionScope.userId}">
+					<button type="button" 
+			            class="btn btn-warning"
+			            onclick="location.href='../board/pass.do?mode=edit&boardId=${dto.boardId}';">
+						수정하기
+					</button>
+				</c:if>
 			</td>
 		</tr>
 	</table>

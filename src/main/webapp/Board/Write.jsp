@@ -43,7 +43,7 @@
  - 파일 크기 제한: @MultipartConfig에서 maxFileSize 설정 가능
  - details 필드: 사용자가 입력하지 않으면 빈 문자열로 전송되므로 필터링 필수
  - restName/restAddress: 사용자가 "맛집 추가" 버튼을 클릭하지 않으면 null일 수 있음 (null 체크 필수)
- - locationLists/hashtagLists: 현재 JSP에서 scriptlet으로 생성 중 → 추후 Controller의 doGet에서 설정 권장 (MVC 패턴)
+ - locationName/hashtagName: 현재 JSP에서 scriptlet으로 생성 중 → 추후 Controller의 doGet에서 설정 권장 (MVC 패턴)
 -->
 <!-- ================================================================================================================== -->
 
@@ -62,7 +62,7 @@
 		m.put("locationName", name);
 		locationLists.add(m);
 	}
-	request.setAttribute("locationLists", locationLists);
+	request.setAttribute("locationName", locationLists);
 	
 	
 	// 해쉬태그
@@ -75,7 +75,7 @@
 		hashtagLists.add(m);
 	}
 	
-	request.setAttribute("hashtagLists", hashtagLists);
+	request.setAttribute("hashtagName", hashtagLists);
 	// 더미데이터 끝==================================================================================================================
 %>
 
@@ -163,8 +163,8 @@
 			const html = `
 				<div class="restaurant-entry mb-2">
 					<div class="d-flex gap-2 align-items-center">
-						<input type="text" name="restName" class="form-control w-25" placeholder="식당 이름">
-						<input type="url" name="restAddress" class="form-control w-75" placeholder="링크">
+						<input type="text" name="restName[]" class="form-control w-25" placeholder="식당 이름">
+						<input type="url" name="restAddress[]" class="form-control w-75" placeholder="링크">
 						<button type="button" class="btn btn-outline-danger btn-sm" onclick="this.closest('.restaurant-entry').remove()">×</button>
 					</div>
 				</div>
@@ -175,7 +175,7 @@
 	</script>
 	
 </head>
-<body>
+<body class="container-fluid py-3">
 	<!-- ================================================================================================================== -->
 	<!--                                            댓글목록 
 		 - 
@@ -185,12 +185,12 @@
 	<h1 class="text-center">추천 여행지</h1>
 	<div class="d-flex justify-content-center ">
 		<!-- form html -->
-		<!-- 목적지 : "../mvcboard/write.do" -->
+		<!-- 목적지 : "../board/write.do" -->
 		<!-- form 이름: writeFrm - Board와 같게 작성함 -->
 		<!-- enctype="multipart/form-data" - 이미지를 포함하여 필요함 -->
 		<!-- onsubmit="return validateForm(this);" : 등록하기 클릭 시 작료 확인 (함수에 존재함) -->
 		<form name="writeFrm" method="post" enctype="multipart/form-data"
-			action="../mvcboard/write.do" onsubmit="return validateForm(this);"
+			action="../board/write.do" onsubmit="return validateForm(this);"
 			class="w-75 px-3 border border-dark">
 			<h4 class="text-center my-3">게시글 등록</h4>
 			<div class="container mx-auto mb-3" style="max-width: 800px;">
@@ -200,7 +200,7 @@
 					<!-- 위치를 선택하는 콤보박스 -->
 					<div class="col-auto">
 						<select name="locationSelect" class="form-select">
-							<c:forEach items="${locationLists}" var="loc">
+							<c:forEach items="${locationName}" var="loc">
 								<option value="${loc.locationName}">${loc.locationName}</option>
 							</c:forEach>
 						</select>
@@ -209,7 +209,7 @@
 					<!-- 해쉬태그를 선택하는 콤보박스 -->
 					<div class="col-auto">
 						<select name="hashtagSelect" class="form-select">
-							<c:forEach items="${hashtagLists}" var="tag">
+							<c:forEach items="${hashtagName}" var="tag">
 								<option value="${tag.hashtagName}">${tag.hashtagName}</option>
 							</c:forEach>
 						</select>
@@ -234,7 +234,7 @@
 			<!-- 지도를 작성하는 부분 -->
 			<div class="row mb-5 px-3">
 				<div class="col-10">
-					<input type="text" id="addressInput" class="form-control" placeholder="주소 입력 (예: 서울 강남구 역삼동 123-45)">
+					<input type="text" id="addressInput" name="addressInput" class="form-control" placeholder="주소 입력 (예: 서울 강남구 역삼동 123-45)">
 				</div>
 				<div class="col-2">
 					<button type="button" class="btn btn-secondary w-100" onclick="searchAddress()">주소 검색</button>
@@ -247,11 +247,11 @@
 			</div>
 			<div class="my-5">
 				<h4>부가 정보 등록</h4>
-				<input type="text" name="details" class="w-100 mb-2" placeholder="관련정보를 작성해 주세요. (예. 운영시간)">
-				<input type="text" name="details" class="w-100 mb-2" placeholder="관련정보를 작성해 주세요. (예. 운영시간)">
-				<input type="text" name="details" class="w-100 mb-2" placeholder="관련정보를 작성해 주세요. (예. 운영시간)">
-				<input type="text" name="details" class="w-100 mb-2" placeholder="관련정보를 작성해 주세요. (예. 운영시간)">
-				<input type="text" name="details" class="w-100 mb-2" placeholder="관련정보를 작성해 주세요. (예. 운영시간)">
+				<input type="text" name="details[]" class="w-100 mb-2" placeholder="관련정보를 작성해 주세요. (예. 운영시간)">
+				<input type="text" name="details[]" class="w-100 mb-2" placeholder="관련정보를 작성해 주세요. (예. 운영시간)">
+				<input type="text" name="details[]" class="w-100 mb-2" placeholder="관련정보를 작성해 주세요. (예. 운영시간)">
+				<input type="text" name="details[]" class="w-100 mb-2" placeholder="관련정보를 작성해 주세요. (예. 운영시간)">
+				<input type="text" name="details[]" class="w-100 mb-2" placeholder="관련정보를 작성해 주세요. (예. 운영시간)">
 			</div>
 			<div id="restaurantList" class="my-5">
 				<h4>주변 맛집 등록</h4>
@@ -262,10 +262,5 @@
 			</div>
 		</form>
 	</div>
-		
-		
-		
-		
-
 </body>
 </html>
