@@ -13,7 +13,7 @@
 
 #footer-content{
     height: 200px;
-	background:  #5a90bf;
+	background:  #94e9f2;
 	<!-- linear-gradient(to right, #94e9f2, #5a90bf); -->
 }
 
