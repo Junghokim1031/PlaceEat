@@ -32,8 +32,8 @@
                           // 빈 문자열 필터링 필요: if (!detail.trim().isEmpty())
  
  ■ 평행 배열 (동적 추가 가능 - 맛집 정보)
- - restName[] (String[])    : String[] restNames = req.getParameterValues("restName");
- - restAddress[] (String[]) : String[] restAddresses = req.getParameterValues("restAddress");
+ - restName[] (String[])    : String[] restNames = req.getParameterValues("restName[]");
+ - restAddress[] (String[]) : String[] restAddresses = req.getParameterValues("restAddress[]");
    
    
  
@@ -95,6 +95,10 @@
 	<!-- Kakao API -->
 	<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<APP_KEY_HERE>&libraries=services"></script>
 
+	<style>
+		<jsp:include page="../Resources/CSS/FooterCSS.jsp" />
+	</style>
+
 	<script>
 		//디버깅을 위한 코드 
 		console.log("Write.jsp 로드 완료");
@@ -134,7 +138,7 @@
 		
 		// KAKAO DEV API 사용하여 주소 받아옴.
 		function searchAddress() {
-			System.out.println("카카오 API에 요청 시작");
+			console.log("카카오 API에 요청 시작");
 			var geocoder = new kakao.maps.services.Geocoder();
 			var address = document.getElementById('addressInput').value;
 			
@@ -155,7 +159,7 @@
 					alert('주소를 찾을 수 없습니다.');
 				}
 			});
-			System.out.println("카카오 API에 요청 완료");
+			console.log("카카오 API에 요청 완료");
 		}
 		
 		// 맛집을 추가할 수 있도록 하는 버튼 
@@ -170,12 +174,12 @@
 				</div>
 			`;
 			document.getElementById('restaurantList').insertAdjacentHTML('beforeend', html);
-			System.out.println("레스토랑 추가 완료");
+			console.log("레스토랑 추가 완료");
 		}
 	</script>
 	
 </head>
-<body class="container-fluid py-3">
+<body class="container-fluid px-0 py-0 mx-0 my-0">
 	<!-- ================================================================================================================== -->
 	<!--                                            댓글목록 
 		 - 
@@ -247,20 +251,21 @@
 			</div>
 			<div class="my-5">
 				<h4>부가 정보 등록</h4>
-				<input type="text" name="details[]" class="w-100 mb-2" placeholder="관련정보를 작성해 주세요. (예. 운영시간)">
-				<input type="text" name="details[]" class="w-100 mb-2" placeholder="관련정보를 작성해 주세요. (예. 운영시간)">
-				<input type="text" name="details[]" class="w-100 mb-2" placeholder="관련정보를 작성해 주세요. (예. 운영시간)">
-				<input type="text" name="details[]" class="w-100 mb-2" placeholder="관련정보를 작성해 주세요. (예. 운영시간)">
-				<input type="text" name="details[]" class="w-100 mb-2" placeholder="관련정보를 작성해 주세요. (예. 운영시간)">
+				<input type="text" name="details[]" class="form-control w-100 mb-2" placeholder="관련정보를 작성해 주세요. (예. 운영시간)">
+				<input type="text" name="details[]" class="form-control w-100 mb-2" placeholder="관련정보를 작성해 주세요. (예. 운영시간)">
+				<input type="text" name="details[]" class="form-control w-100 mb-2" placeholder="관련정보를 작성해 주세요. (예. 운영시간)">
+				<input type="text" name="details[]" class="form-control w-100 mb-2" placeholder="관련정보를 작성해 주세요. (예. 운영시간)">
+				<input type="text" name="details[]" class="form-control w-100 mb-2" placeholder="관련정보를 작성해 주세요. (예. 운영시간)">
 			</div>
 			<div id="restaurantList" class="my-5">
 				<h4>주변 맛집 등록</h4>
 				<button type="button" class="btn btn-secondary w-25 mb-4" onclick="addRestaurant()">맛집 추가</button>
 			</div>
 			<div>
-				<button type="submit" class="btn btn-primary text-center w-100">등록하기</button>
+				<button type="submit" class="btn btn-primary text-center w-100 mb-5">등록하기</button>
 			</div>
 		</form>
 	</div>
+	<jsp:include page="Footer.jsp" />
 </body>
 </html>

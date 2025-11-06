@@ -21,7 +21,7 @@
 		 		
                                                  맛집 
 		 - restaurantTable 전체에서 다음과 같은 내용을 활용함 (총 2개)
-		 		- restName, address
+		 		- restName, restAddress
 		 		
                                                 댓글목록 
 		 - commentTable 전체에서 다음과 같은 내용을 활용함 (총 3개)
@@ -35,17 +35,18 @@
 	<meta charset="UTF-8">
 	<title>PLACE EAT 게시판</title>
 	
+	<!-- Bootstrap CSS -->
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
 	integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 	
+	<!-- Footer CSS -->
+	<style>
+		<jsp:include page="../Resources/CSS/FooterCSS.jsp" />
+	</style>
 	
 	<style>
-		body {
-            font-family: 'Noto Sans KR', sans-serif;
-            margin: 20px;
-        }
-		html { scroll-behavior: smooth; }
 
+		html { scroll-behavior: smooth; }
         
         #shortCut{
         	margin: auto;
@@ -53,7 +54,7 @@
             align:center;
             text-align: center;
             font-size: 2rem;
-            fontweight: bolder;
+            fontweight: bold;
             margin-bottom:20px;
         }
         
@@ -72,27 +73,70 @@
 		#staticMap{
 			display:block;
 			align:center;
-		    border:2px solid black;
+		    border:1px solid black;
             margin-top:10px;
-            width:100% auto;
+            width:100%;
             height:400px;
         }
         
-        #detail{
+        .detail{
         	padding-left:10px;
         }
         
+        #restaurant {
+        	width: 90%;
+        }
         textarea{
         	width: 100%;
         	resize: none;
         }
 	</style>
+	
+	<!--  jQuery -->
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<!-- KAKAO -->
+	<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<APP_KEY_HERE>&libraries=services"></script>
+	
 	<script>
-		console.log("View.jsp 로드 완료");
+	console.log("View.jsp 로드 완료")
+	
+	//========================================================================================================================
+	// 좋아요 클릭 
+	// Post를 통해 sessionScope.userID와 boardId를 webservlet board/like.do 로 전송함. (필요시 변경 가능)
+	// ChatGPT 작성 변경이 필요함
+	//========================================================================================================================
+	$(function() {
+		$(document).on("click", "#like", function (e) {
+			const $btn = $(this);
+			const userId = $btn.data("userId");
+			const boardId = $btn.data("boardId");
+			if (!userId) { 
+				alert("로그인이 필요합니다."); 
+				return; 
+			}
+			const base = "<%= request.getContextPath() %>";
+			$.ajax({
+				type: "POST",
+				url: base + "/board/like.do",
+				data: { 
+					userId: userId, 
+					boardId: boardId
+				},
+				success: function (res) {
+					$btn.toggleClass("btn-primary text-white");
+				},
+				error: function (xhr) {
+					console.error(xhr.responseText);
+					alert("좋아요 처리 중 오류가 발생했습니다.");
+				}
+			});
+		});
+	});
+	
+	// 좋아요 함수 끝==================================================================================================================================
 	</script>
 </head>
-<body class="container-fluid py-3">
+<body class="container-fluid px-0 py-0 mx-0 my-0">
 	<!-- 페이지에 문제 없는지 확인 -->
 <%
 	Map<String,Object> dto = new HashMap<>();
@@ -117,42 +161,42 @@
 	
 	Map<String, String> restaurant1 = new HashMap<>();
 	restaurant1.put("restName", "맛있는 김밥천국");
-	restaurant1.put("address", "http://map.example.com/restaurant1");
+	restaurant1.put("restAddress", "http://map.example.com/restaurant1");
 	restaurantTable.add(restaurant1);
 	
 	Map<String, String> restaurant2 = new HashMap<>();
 	restaurant2.put("restName", "역삼동 분식집");
-	restaurant2.put("address", "http://map.example.com/restaurant2");
+	restaurant2.put("restAddress", "http://map.example.com/restaurant2");
 	restaurantTable.add(restaurant2);
 	
 	Map<String, String> restaurant3 = new HashMap<>();
 	restaurant3.put("restName", "분식의 달인");
-	restaurant3.put("address", "http://map.example.com/restaurant3");
+	restaurant3.put("restAddress", "http://map.example.com/restaurant3");
 	restaurantTable.add(restaurant3);
 	
 	Map<String, String> restaurant4 = new HashMap<>();
 	restaurant4.put("restName", "한남동 국밥집");
-	restaurant4.put("address", "http://map.example.com/restaurant4");
+	restaurant4.put("restAddress", "http://map.example.com/restaurant4");
 	restaurantTable.add(restaurant4);
 
 	Map<String, String> restaurant5 = new HashMap<>();
 	restaurant5.put("restName", "청담동 초밥수");
-	restaurant5.put("address", "http://map.example.com/restaurant5");
+	restaurant5.put("restAddress", "http://map.example.com/restaurant5");
 	restaurantTable.add(restaurant5);
 
 	Map<String, String> restaurant6 = new HashMap<>();
 	restaurant6.put("restName", "을지로 골뱅이집");
-	restaurant6.put("address", "http://map.example.com/restaurant6");
+	restaurant6.put("restAddress", "http://map.example.com/restaurant6");
 	restaurantTable.add(restaurant6);
 
 	Map<String, String> restaurant7 = new HashMap<>();
 	restaurant7.put("restName", "홍대 닭칼국수");
-	restaurant7.put("address", "http://map.example.com/restaurant7");
+	restaurant7.put("restAddress", "http://map.example.com/restaurant7");
 	restaurantTable.add(restaurant7);
 
 	Map<String, String> restaurant8 = new HashMap<>();
 	restaurant8.put("restName", "서촌 쌈밥정식");
-	restaurant8.put("address", "http://map.example.com/restaurant8");
+	restaurant8.put("restAddress", "http://map.example.com/restaurant8");
 	restaurantTable.add(restaurant8);
 
 	// Keep attribute updated for the JSP
@@ -188,7 +232,7 @@
 		 - request.setAttribute("dto", dto)로 ViewController.java에서 전달받음 -->
 	<!-- ================================================================================================================== -->
 	<!-- 제목  & 작성자, 작성일, 및 조회수 -->
-	<table id="title" border="1" class="w-100 mb-1">
+	<table id="title" class="w-100 mb-1">
 		<tr>
             <td align="center" height="80px"  bgcolor="#CCCCCC">
                 <h1> <b> ${dto.title} </b> </h1>
@@ -210,7 +254,7 @@
 	</table>
 	
 	<!-- Figma에 따라 단축키 작성 -->
-	<table id="shortCut" border="1">
+	<table id="shortCut" class="border">
 		<tr>
 			<td><a href="#title" class="text-dark text-decoration-none"> 사진 보기</a></td>
 			<td><a href="#staticMap" class="me-3 text-dark text-decoration-none">지도 보기</a></td>
@@ -225,7 +269,7 @@
 	</c:if>
 	
 	<!-- 내용 출력 -->
-	<table id="content" border="1" width="90%" align="center">
+	<table id="content" class="border" width="90%" align="center">
 		<!-- 게시글 -->
 		<tr>
 		    <td colspan="4" align="center" bgcolor="#CCCCCC">
@@ -239,29 +283,10 @@
 		</tr>
 	
 	<!-- 지도 출력 -->
-		<tr id="staticMap">
-			
-			<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<APP_KEY_HERE>"></script>
-			<script>
-			// 이미지 지도에서 마커가 표시될 위치입니다 
-			var markerPosition  = new kakao.maps.LatLng(${dto.latitude}, ${dto.longitude}); 
-			
-			// 이미지 지도에 표시할 마커입니다
-			// 이미지 지도에 표시할 마커는 Object 형태입니다
-			var marker = {
-			    position: markerPosition
-			};
-			
-			var staticMapContainer  = document.getElementById('staticMap'), // 이미지 지도를 표시할 div  
-			    staticMapOption = { 
-			        center: new kakao.maps.LatLng(${dto.latitude}, ${dto.longitude}), // 이미지 지도의 중심좌표
-			        level: 3, // 이미지 지도의 확대 레벨
-			        marker: marker // 이미지 지도에 표시할 마커 
-			    };    
-			
-			// 이미지 지도를 생성합니다
-			var staticMap = new kakao.maps.StaticMap(staticMapContainer, staticMapOption);
-			</script>
+		<tr>
+			<td colspan="4">
+				<div id="staticMap"></div>
+			</td>
 		</tr>
 		<tr>
 		    <td>
@@ -271,7 +296,7 @@
 	<!-- 지도 밑 상세정보 출력 -->
 		<c:forEach  items="${dto.details}" var="detail">
 			<tr>
-            	<td id="detail">
+            	<td class="detail">
 					<b>${detail}</b><br>
 				</td>
 			</tr>
@@ -279,7 +304,7 @@
 		
 	<!-- 위치 와 해쉬태그 출력 -->
 		<tr>
-            <td id="detail">
+            <td class="detail">
                 <b>위치: </b> ${dto.locationName} <br>
                 <b>해시태그: </b> 
                 <c:forEach items="${dto.hashtagName}" var="tag" varStatus="status">
@@ -290,46 +315,12 @@
         </tr>
         <tr>
         	<td align="center">
-				<button id="like" type="button"
-			        data-user-id="${sessionScope.userId}"
-			        data-board="${dto.boardId}">
+				<button id="like" type="button" class="btn btn-primary"
+				        data-userId="${sessionScope.userId}"
+				        data-boardId="${dto.boardId}">
 				  좋아요
 				</button>
-				<!-- ChatGPT 작성 변경이 필요함 -->
-				<script>
-				$(function() {
-					$(document).on("click", "#like", function (e) {
-						/* e.preventDefault();
-						HttpSession session = request.getSession(true);
-						Object userId = session.getAttribute("userId");
-						if(!userId){
-							alert("로그인이 필요합니다."); 
-							return;
-						}
-						else{
-							String userIdStr = userId.toString();
-							String boardId = 
-						} */
-						const $btn = $(this);
-						const userId = $btn.data("userId");
-						const boardId = $btn.data("board");
-						if (!userId) { alert("로그인이 필요합니다."); return; }
-						const base = "<%= request.getContextPath() %>";
-						$.ajax({
-							type: "POST",
-							url: base + "/like",
-							data: { userId: userId, boardId: boardId, action: "like" },
-							success: function (res) {
-								$btn.toggleClass("btn-primary text-white");
-							},
-							error: function (xhr) {
-								console.error(xhr.responseText);
-								alert("좋아요 처리 중 오류가 발생했습니다.");
-							}
-						});
-					});
-				});
-				</script>
+
 			</td>
 			<td>
 				<c:if test="${dto.userId eq sessionScope.userId}">
@@ -343,6 +334,30 @@
 		</tr>
 	</table>
 	<br>
+	<script>
+	
+	//========================================================================================================================
+	// KAKAO 지도 함수 
+	// 페이지 로딩이 완료된 후 dto에 저장된 위도 및 경도를 사용해서 지도를 작성함
+	//========================================================================================================================
+	window.addEventListener('DOMContentLoaded', function() {
+		var markerPosition  = new kakao.maps.LatLng(${dto.latitude}, ${dto.longitude}); 
+		var marker = {
+			position: markerPosition
+		};
+		
+		var staticMapContainer  = document.getElementById('staticMap');
+		var staticMapOption = { 
+			center: new kakao.maps.LatLng(${dto.latitude}, ${dto.longitude}),
+			level: 3,
+			marker: marker
+		};    
+		
+		var staticMap = new kakao.maps.StaticMap(staticMapContainer, staticMapOption);
+	});
+	
+	//  KAKAO 지도 함수 끝 ========================================================================================================================
+	</script>
 	
 	<!-- 게시글 끝 ==================================================================================================== -->
 	
@@ -350,16 +365,16 @@
 	<!--                                            맛집 
 		 - 추천 여행지관련 맛집 정보
 		 - restaurantTable의 다음과 같은 내용을 활용함 (총 2개)
-		 		- restName, address
+		 		- restName, restAddress
 		 - request.setAttribute("restaurantTable", restaurantTable)로 ViewController.java에서 전달받음 -->
 	<!-- ================================================================================================================== -->
-	<div border="1" width="90%" align="center" bgcolor="#CCCCCC">
+	<div width="90%" align="center" bgcolor="#CCCCCC">
                 <h3>근처 맛집</h3>
 	</div>
-	<div class="row">
+	<div id="restaurant" class="row mx-auto">
 		<c:forEach items="${ restaurantTable }" var="restaurant">
-		    <div class="col-sm-3" align="center">
-		    	<a href="${restaurant.address}" class="text-dark text-decoration-none">${restaurant.restName}</a>
+		    <div class="col-sm-3 px-0" align="center">
+		    	<a href="${restaurant.restAddress}" class="text-dark text-decoration-none">${restaurant.restName}</a>
 		    </div>
 		</c:forEach>
 	</div>
@@ -376,7 +391,7 @@
 		 		- userId, createdAt, content
 		 - request.setAttribute("commentTable", commentTable);로 ViewController.java에서 전달받음 -->
 	<!-- ================================================================================================================== -->
-	<table id="replyTable" border="1" width="90%" align="center">
+	<table id="replyTable" class="border" width="90%" align="center">
 		<tr>
 		    <td colspan="3" align="center" bgcolor="#CCCCCC">
                 <h3>댓글</h3>
@@ -384,7 +399,7 @@
 		</tr>
 	</table>
 
-	<table style="width:90%; margin:0 auto; border-collapse:collapse;" border="1">
+	<table style="width:90%; margin:0 auto; border-collapse:collapse;" >
 		<c:forEach items="${commentTable}" var="comment">
 			<tr>
 				<td>
@@ -396,7 +411,7 @@
 		</c:forEach>
 		<!-- 댓글 페이지 처리 Board에서 복사함 -->
 		<tr>
-			<td align="center" style="padding:8px;">
+			<td align="center" >
 				<!-- ViewController에서 작성한 것으로 이름 변경 필요 -->
 				${map.pagingImg}
 			</td>
@@ -408,20 +423,28 @@
 	
 	<!-- ================================================================================================================== -->
 	<!--                                            댓글작성 
-		 - 무엇을 어디로 전달해야 할까요? -->
+	 		Post를 통해 댓글, dto.userID, 및 dto.boardId를 webservlet comment/write.do로 전송함. (필요시 변경 가능)
 	<!-- ================================================================================================================== -->
-	<div style="width:90%; margin:12px auto 0;">
-		<textarea id="replyContent" rows="4"></textarea><br />
-		<button id="addReplyBtn" type="button" style="float:right;">댓글등록</button>
-	</div>
+	<form id="replyForm" method="post" action="../comment/write.do" style="width:90%; margin:12px auto 0;" class="mb-5">
+		<input type="hidden" name="boardId" value="${dto.boardId}">
+		<input type="hidden" name="userId" value="${sessionScope.userId}">
+		<textarea id="replyContent" name="replyContent" rows="4" class="form-control" placeholder="댓글을 입력하세요"></textarea><br />
+		<button type="submit" class="btn btn-primary float-end mt-2">댓글등록</button>
+	</form>
+	<!-- 댓글을 작성하려고 하는 사람이 로그인 되어 있지 않는 경우, alert를 뛰움. -->
 	<script>
-		// 댓글 등록 버튼 클릭 이벤트 핸들러
-		const myButton = document.getElementById("addReplyBtn");
-		myButton.addEventListener("click", function() {
-			alert("댓글 등록 기능은 현재 구현 중입니다.");
+	$(document).ready(function() {
+		$('#replyForm').on('submit', function(e) {
+			if (!${not empty sessionScope.userId}) {
+				e.preventDefault();
+				alert("로그인이 필요합니다.");
+				return false;
+			}
 		});
+	});
 	</script>
-	<!-- 댓글작성 끝 ==================================================================================================== -->
 	
+	<!-- 댓글작성 끝 ==================================================================================================== -->
+	<jsp:include page="Footer.jsp" />
 </body>
 </html>

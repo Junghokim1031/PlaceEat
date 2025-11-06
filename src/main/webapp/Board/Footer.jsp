@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 
 <br>
-<div id="footer">
+<div id="footer" class=" px-0 mt-3">
 	<div class="header-divider" class=" px-0 mx-0"></div>
 	<div id = "footer-content" class="row align-items-end px-5 py-3">
 		<div class="col-4">

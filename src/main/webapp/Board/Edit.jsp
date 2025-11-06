@@ -3,18 +3,99 @@
 <%@ page import="java.util.*" %>
 <!DOCTYPE html>
 
+
 <!-- ================================================================================================================== -->
 <!--                                       전체 개요 (Edit.JSP → edit.do)
+												   ChatGPT 작성 문서
+                                            컨트롤러에서 JSP로 전달할 데이터
+ ■ Request Attributes (EditController.doGet에서 설정)
  
- 컨트롤러에서 받아야 할 데이터
- - request.setAttribute("dto", dto); // BoardDTO with existing data
- - request.setAttribute("restaurantLists", restaurantLists); // List of existing restaurants
- - request.setAttribute("locationLists", locationLists);
- - request.setAttribute("hashtagLists", hashtagLists);
+ 1. dto (Map<String, Object> 또는 BoardDTO)
+    - boardId (Integer)       : 수정할 게시글 ID
+    - title (String)          : 게시글 제목
+    - content (String)        : 게시글 내용
+    - locationName (String)   : 지역명 (예: "서울특별시")
+    - hashtagName (String)    : 해시태그 (예: "#파스타")
+    - imgOFileName (String)   : 원본 파일명
+    - imgSFileName (String)   : 저장된 파일명
+    - latitude (Double)       : 위도
+    - longitude (Double)      : 경도
+    - address (String)        : 주소 문자열 (Optional)
+    - details (List<String>)  : 부가정보 배열 (최대 5개)
+    
+ 2. restaurantLists (List<Map<String, Object>>)
+    - restId (Integer)        : 맛집 ID
+    - boardId (Integer)       : 게시글 ID (FK)
+    - restName (String)       : 식당 이름
+    - address (String)        : 식당 링크/주소
+    
+ 3. locationLists (List<Map<String, Object>>)
+    - locationName (String)   : 지역명 (드롭다운 옵션)
+    
+ 4. hashtagLists (List<Map<String, Object>>)
+    - hashtagName (String)    : 해시태그명 (드롭다운 옵션)
+
+
+                                        JSP에서 컨트롤러로 전송할 데이터 (POST)
+
+ ■ 단일 값 필드 (req.getParameter 사용)
+ - boardId (String → int)     : String boardIdStr = req.getParameter("boardId");
+                                 int boardId = Integer.parseInt(boardIdStr);
+ - locationSelect (String)     : String locationSelect = req.getParameter("locationSelect");
+ - hashtagSelect (String)      : String hashtagSelect = req.getParameter("hashtagSelect");
+ - title (String)              : String title = req.getParameter("title");
+ - content (String)            : String content = req.getParameter("content");
+ - addressInput (String)       : String address = req.getParameter("addressInput");
  
- 백엔드로 전송할 데이터 (Write.JSP와 동일 + boardId)
- - boardId (hidden) : 수정할 게시글 식별자
- - 나머지 필드는 Write.JSP와 동일
+ ■ 좌표 정보 (Hidden 필드)
+ - latitude (String → double)  : String latStr = req.getParameter("latitude");
+                                  double latitude = Double.parseDouble(latStr);
+ - longitude (String → double) : String lngStr = req.getParameter("longitude");
+                                  double longitude = Double.parseDouble(lngStr);
+ 
+ ■ 파일 업로드 (Optional - Multipart)
+ - ofile (Part)                : Part filePart = req.getPart("ofile");
+                                  // null이면 기존 이미지 유지
+                                  if (filePart != null && filePart.getSize() > 0) {
+                                      String newFileName = filePart.getSubmittedFileName();
+                                  }
+ 
+ ■ 배열 필드 (req.getParameterValues 사용)
+ - details[] (String[])        : String[] details = req.getParameterValues("details[]");
+                                  // 최대 5개, 빈 문자열 필터링 필요
+                                  
+ - restName[] (String[])       : String[] restNames = req.getParameterValues("restName[]");
+ - restAddress[] (String[])    : String[] restAddresses = req.getParameterValues("restAddress[]");
+                                  // 배열 길이는 동일 (parallel arrays)
+                                  // null 체크 필수
+
+
+                                                주의사항
+
+ ⚠️ Write.JSP와의 차이점
+ - boardId (hidden) 필드 필수 전송
+ - ofile (파일 업로드) 선택사항: 업로드하지 않으면 기존 이미지 유지
+ - 모든 입력 필드는 기존 값(dto.xxx)으로 pre-fill
+ 
+ ⚠️ 배열 파라미터 처리
+ - details[], restName[], restAddress[] 모두 배열 표기법([]) 사용 필수
+ - Write.JSP와 동일한 파라미터명 사용
+ 
+ ⚠️ 파일 업로드
+ - @MultipartConfig 필수
+ - 기존 imgSFileName 유지 로직 필요 (새 파일 없을 때)
+ 
+ ⚠️ 삭제된 레스토랑 처리
+ - 사용자가 × 버튼으로 삭제한 맛집은 전송되지 않음
+ - 컨트롤러에서 기존 맛집 전체 삭제 후 재등록 또는 Diff 알고리즘 필요
+ 
+ ⚠️ Kakao Maps API
+ - 주소 검증: addressVerified flag가 true여야 제출 가능
+ - 기존 좌표 존재 시 자동으로 true 설정
+ 
+ ⚠️ MVC 패턴
+ - Lines 29-103: 더미 데이터 (개발 전용)
+ - 프로덕션 배포 전 EditController.doGet()으로 이동 필수
 -->
 <!-- ================================================================================================================== -->
 
@@ -117,6 +198,10 @@ integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLAS
         integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" 
         crossorigin="anonymous"></script>
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<APP_KEY_HERE>&libraries=services"></script>
+	<style>
+		<jsp:include page="../Resources/CSS/FooterCSS.jsp" />
+	</style>
+
 
 <script>
 console.log("Edit.jsp 로드 완료");
@@ -170,8 +255,8 @@ function addRestaurant() {
   const html = `
     <div class="restaurant-entry mb-2">
       <div class="d-flex gap-2 align-items-center">
-        <input type="text" name="restName" class="form-control w-25" placeholder="식당 이름">
-        <input type="url" name="restAddress" class="form-control w-75" placeholder="링크">
+        <input type="text" name="restName[]" class="form-control w-25" placeholder="식당 이름">
+        <input type="url" name="restAddress[]" class="form-control w-75" placeholder="링크">
         <button type="button" class="btn btn-outline-danger btn-sm" onclick="this.closest('.restaurant-entry').remove()">×</button>
       </div>
     </div>
@@ -193,16 +278,16 @@ window.addEventListener('DOMContentLoaded', function() {
 </script>
 
 </head>
-<body class="container-fluid py-3">
+<body class="container-fluid  px-0 py-0 mx-0 my-0">
 
 <h1 class="text-center">추천 여행지</h1>
 <div class="d-flex justify-content-center">
 <!--  핵심 변경사항  
-     1. action="../mvcboard/edit.do" 
+     1. action="../board/edit.do" 
      2. hidden field로 boardId 추가
      3. value="${dto.abc}" 로 모든 필드 pre-fill -->
 <form name="editFrm" method="post" enctype="multipart/form-data"
-action="../mvcboard/edit.do" onsubmit="return validateForm(this);"
+action="../board/edit.do" onsubmit="return validateForm(this);"
 class="w-75 px-3 border border-dark">
 
 <!--  Hidden: 수정할 게시글 ID  -->
@@ -288,7 +373,7 @@ class="w-75 px-3 border border-dark">
   <h4>부가 정보 등록</h4>
   <!--  dto.details가 List<String>이라고 가정  -->
   <c:forEach begin="0" end="4" var="i">
-    <input type="text" name="details" class="w-100 mb-2" 
+    <input type="text" name="details[]" class="form-control w-100 mb-2" 
            placeholder="관련정보를 작성해 주세요. (예. 운영시간)"
            value="${dto.details[i]}">
   </c:forEach>
@@ -303,9 +388,9 @@ class="w-75 px-3 border border-dark">
   <c:forEach items="${restaurantLists}" var="rest">
     <div class="restaurant-entry mb-2">
       <div class="d-flex gap-2 align-items-center">
-        <input type="text" name="restName" class="form-control w-25" 
+        <input type="text" name="restName[]" class="form-control w-25" 
                placeholder="식당 이름" value="${rest.restName}">
-        <input type="url" name="restAddress" class="form-control w-75" 
+        <input type="url" name="restAddress[]" class="form-control w-75" 
                placeholder="링크" value="${rest.address}">
         <button type="button" class="btn btn-outline-danger btn-sm" 
                 onclick="this.closest('.restaurant-entry').remove()">×</button>
@@ -317,10 +402,10 @@ class="w-75 px-3 border border-dark">
 
 <div>
   <!--  버튼 텍스트 변경  -->
-  <button type="submit" class="btn btn-primary text-center w-100">수정하기</button>
+  <button type="submit" class="btn btn-primary text-center w-100 mb-3">수정하기</button>
 </div>
 </form>
 </div>
-
+	<jsp:include page="Footer.jsp" />
 </body>
 </html>

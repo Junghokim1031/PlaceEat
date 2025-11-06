@@ -3,7 +3,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Train+One&display=swap');
 
 
-
+#footer{
+	width: 100% !important;
+	background:  #94e9f2;
+}
 #header-divider{
 	width: 100% !important; 
 	height: 4px; 
@@ -12,8 +15,9 @@
 }
 
 #footer-content{
+	width: 100%;
     height: 200px;
-	background:  #94e9f2;
+	
 	<!-- linear-gradient(to right, #94e9f2, #5a90bf); -->
 }
 

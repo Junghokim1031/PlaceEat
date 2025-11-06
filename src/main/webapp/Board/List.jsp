@@ -5,31 +5,24 @@
 <!DOCTYPE html>
 
 <!-- ==================================================================================================================
-                                           전체 개요 (List.jsp)
+                                       전체 개요 (List.jsp)
             - 검색 클릭 시 넘어가는 정보를 받는 방법
-				// Multi-select hashtags
-				String[] hashtags = req.getParameterValues("hashtag"); // may be null if none selected
-				List<String> hashtagList = hashtags != null ? Arrays.asList(hashtags) : Collections.emptyList();
-				
-				// Single-select location
-				String location = req.getParameter("locationTagParam"); // null if none selected
-				
-				// Optional: search text inputs
-				String searchField = req.getParameter("searchField");   // "title" or "content"
-				String searchWord  = req.getParameter("searchWord");    // user text
+                // Multi-select hashtags
+                String[] hashtags = req.getParameterValues("hashtagName"); // may be null if none selected
+                List<String> hashtagList = hashtags != null ? Arrays.asList(hashtags) : Collections.emptyList();
+                
+                // Single-select location
+                String location = req.getParameter("locationName"); // null if none selected
+                
+                // Optional: search text inputs
+                String searchField = req.getParameter("searchField");   // "title" or "content"
+                String searchWord  = req.getParameter("searchWord");    // user text
                                            
-	        - 받기 원하는 형식: request attribute
+        - 받기 원하는 형식: request attribute
             request.setAttribute("boardLists", boardLists);
-            req.setAttribute("locationLists", locationLists);
-			req.setAttribute("hashtagLists", hashtagLists);
-			req.getRequestDispatcher("/WEB-INF/views/List.jsp").forward(req, resp);
-			
-			 - boardLists 6개에서 다음과 같은 내용을 활용함 (총 7개)
-					 		- boardId, title, imgSFileName, content, userId, viewCount, createdAt
-			 - locationLists에서 다음과 같은 내용을 활용함
-							- locationName	 
-			 - hashtagLists에서 다음과 같은 내용을 활용함
-							- hashtagName (#포함한 이름)
+            req.setAttribute("locationName", locationName);
+            req.setAttribute("hashtagName", hashtagName);
+            req.getRequestDispatcher("/WEB-INF/views/List.jsp").forward(req, resp);
   ================================================================================================================== -->
 
 
@@ -109,9 +102,9 @@
 	request.setAttribute("boardLists", boardLists);
 	
 	// ========================================
-	// locationLists 및 hashtagLists
+	// locationName 및 hashtagName
 	// ========================================
-	List<Map<String,Object>> locationLists = new ArrayList<>();
+	List<Map<String,Object>> locationName = new ArrayList<>();
 	String[] locations = {
 	  "서울특별시","부산광역시","대구광역시","인천광역시","광주광역시","대전광역시","울산광역시","세종특별자치시",
 	  "경기도","강원특별자치도","충청북도","충청남도","전라북도","전라남도","경상북도","경상남도","제주특별자치도"
@@ -119,18 +112,18 @@
 	for (String name : locations) {
 	  Map<String,Object> m = new HashMap<>();
 	  m.put("locationName", name);
-	  locationLists.add(m);
+	  locationName.add(m);
 	}
-	request.setAttribute("locationLists", locationLists);
+	request.setAttribute("locationName", locationName);
 	
-	List<Map<String,Object>> hashtagLists = new ArrayList<>();
+	List<Map<String,Object>> hashtagName = new ArrayList<>();
 	String[] hashtags = {"#한식","#브런치","#디저트","#치킨","#회","#파스타","#비건","#카페","#가성비","#분위기좋은"};
 	for (String tag : hashtags) {
 	  Map<String,Object> m = new HashMap<>();
 	  m.put("hashtagName", tag);
-	  hashtagLists.add(m);
+	  hashtagName.add(m);
 	}
-	request.setAttribute("hashtagLists", hashtagLists);
+	request.setAttribute("hashtagName", hashtagName);
 %>
 
 
@@ -155,13 +148,13 @@
 		
 		/* 검색 박스 스타일 */
 		.search-box {
-			width: 100%;
-			margin-top: 20px;
-			padding: 5px;
-			border: 1px solid #ddd;
-			border-radius: 5px;
-			background-color: #75b3d8;
+		    width: 100%;
+		    margin-top: 20px;
+		    background-color: #75b3d8;
+		    border-radius: 5px;
+		    box-sizing: border-box;
 		}
+
 		
 		.card-text{
             overflow: hidden; 
@@ -183,8 +176,6 @@
 		
 		#list{
 			background-color:#f8f9fa; 
-			padding:20px; 
-			margin-top:50px;
 		}
 	</style>
 	<script>
@@ -192,7 +183,7 @@
 	</script>
 </head>
 
-<body class="container-fluid pt-3">
+<body class="container-fluid p-0 m-0">
 
 	<!-- ================================================================================================================== -->
 	<!--                                            게시판 (카드 목록)  
@@ -200,13 +191,13 @@
 		 - 좌측: 카드 리스트
 		 - 우측: 검색/필터 + 태그(지역 단일선택, 해시태그 다중선택)                                                         -->
 	<!-- ================================================================================================================== -->
-	<div class="row">
+	<div class="row px-3">
 		<!-- 좌측: 카드 리스트 -->
-		<div id="list" class="col-12 col-lg-8" >
+		<div id="list" class="col-12 col-lg-8 mt-3" >
 			<div class="row g-3">
 				<c:forEach items="${boardLists}" var="row">
 					<div class="col-12 col-sm-6 col-lg-4">
-						<div class="card h-100">
+						<div class="card h-100 w-auto">
 							<img src="${pageContext.request.contextPath}/Resources/Img/${row.imgSFileName}"
 								class="card-img-top" alt="${row.title}">
 							<div class="card-body">
@@ -217,7 +208,7 @@
                                     <small class="text-muted">조회수: ${row.viewCount}</small><br>
                                     <small class="text-muted">작성일: ${row.createdAt}</small>
 								</p>
-								<a href="../mvcboard/view.do?boardId=${row.boardId}" class="stretched-link" aria-label="${row.title}"></a>
+								<a href="../board/view.do?boardId=${row.boardId}" class="stretched-link"></a>
 							</div>
 						</div>
 					</div>
@@ -234,12 +225,12 @@
 		<!-- ================================================================================================================== -->
 		<!--                                            검색/필터                                                            -->
 		<!-- ================================================================================================================== -->
-		<div class="col-12 col-lg-4" style="margin-top:50px;">
-			<form id="searchForm" method="get" action="../mvcboard/list.do">
+		<div class="col-12 col-lg-4 mt-3">
+			<form id="searchForm" method="get" action="../board/list.do">
 				<!--
 					다중 파라미터를 전달하기 위한 hidden 입력 호스트
-					- hashtag: 다중선택(동일 name 반복)
-					- locationTagParam: 단일선택(1개만 유지)
+					- hashtagName: 다중선택(동일 name 반복)
+					- locationName: 단일선택(1개만 유지)
 				-->
 				<div id="hiddenHost"></div>
 
@@ -259,33 +250,37 @@
 				</div>
 
 				<!-- 지역: 단일 선택 -->
-				<div id="locationTags" class="search-box row mx-auto">
-					<div class="col-12 mb-2 fw-bold">지역</div>
-					<c:forEach items="${locationLists}" var="row">
-						<div class="col-4 mb-2">
-							<button type="button"
-								class="tag tag-location btn btn-outline-secondary w-100"
-								data-name="locationTagParam"
-								data-value="${row.locationName}">
-								${row.locationName}
-							</button>
-						</div>
-					</c:forEach>
+				<div id="locationTags">
+					<div class="search-box d-flex flex-wrap justify-content-center gap-2 p-1">
+						<div class="w-100"><b>지역</b></div>
+						<c:forEach items="${locationName}" var="row">
+							<div>
+								<button type="button"
+									class="tag locationTag btn btn-outline-secondary w-100"
+									name="locationName"
+									value="${row.locationName}">
+									${row.locationName}
+								</button>
+							</div>
+						</c:forEach>
+					</div>
 				</div>
 
 				<!-- 해시태그: 다중 선택 -->
-				<div id="hashtagTags" class="search-box row mx-auto mt-3">
-					<div class="col-12 mb-2 fw-bold">해시태그</div>
-					<c:forEach items="${hashtagLists}" var="row">
-						<div class="col-4 mb-2">
-							<button type="button"
-								class="tag tag-hashtag btn btn-outline-secondary w-100"
-								data-name="hashtag"
-								data-value="${row.hashtagName}">
-								${row.hashtagName}
-							</button>
-						</div>
-					</c:forEach>
+				<div id="hashtagTags">
+					<div class="search-box d-flex flex-wrap justify-content-center gap-2 p-1">
+						<div class="w-100"><b>해시태그</b></div>
+						<c:forEach items="${hashtagName}" var="row">
+							<div>
+								<button type="button"
+									class="tag hashtagTag btn btn-outline-secondary w-100"
+									name="hashtagName"
+									value="${row.hashtagName}">
+									${row.hashtagName}
+								</button>
+							</div>
+						</c:forEach>
+					</div>
 				</div>
 			</form>
 		</div>
@@ -294,152 +289,140 @@
 	</div>
 
 	<script>
-		// ------------------------------
-		// 공통 유틸: hidden input 추가
-		// ------------------------------
-		function addHidden(host, name, value) {
-			// 동일 항목 중복 방지 위해 data-key 사용
-			const key = name + '::' + value;
-			let input = host.querySelector('input[type="hidden"][data-key="' + CSS.escape(key) + '"]');
-			if (!input) {
-				input = document.createElement('input');
-				input.type = 'hidden';
-				input.name = name;
-				input.value = value;
-				input.dataset.key = key;
-				host.appendChild(input);
-			}
-		}
-	
-		// 공통 유틸: hidden input 추가 끝
-	
-		
-		// ------------------------------
-		// 공통 유틸: hidden input 삭제
-		// ------------------------------
-		function removeHidden(host, name, value) {
-			const key = name + '::' + value;
-			const input = host.querySelector('input[type="hidden"][data-key="' + CSS.escape(key) + '"]');
-			if (input) input.remove();
-		}
-		
-		// 공통 유틸: hidden input 삭제 끝
+  // ======================================
+  // Utility: Add hidden input to form
+  // ======================================
+  function addHidden(host, name, value) {
+    const key = name + '::' + value;
+    let input = host.querySelector('input[type="hidden"][data-key="' + CSS.escape(key) + '"]');
+    
+    if (!input) {
+      input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = name;
+      input.value = value;
+      input.dataset.key = key;
+      host.appendChild(input);
+    }
+  }
 
-		
-		document.addEventListener('DOMContentLoaded', function () {
-			// 폼/히든 호스트 참조
-			const form = document.getElementById('searchForm');
-			const host = document.getElementById('hiddenHost');
+  // ======================================
+  // Utility: Remove hidden input from form
+  // ======================================
+  function removeHidden(host, name, value) {
+    const key = name + '::' + value;
+    const input = host.querySelector('input[type="hidden"][data-key="' + CSS.escape(key) + '"]');
+    if (input) {
+      input.remove();
+    }
+  }
 
-			// ------------------------------
-			// 해시태그: 다중 선택 토글
-			// ------------------------------
-			const hashtagRoot = document.getElementById('hashtagTags');
-			if (hashtagRoot) {
-				hashtagRoot.addEventListener('click', function (e) {
-					const btn = e.target.closest('.tag-hashtag');
-					if (!btn) return;
+  // ======================================
+  // Main initialization
+  // ======================================
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('searchForm');
+    const host = document.getElementById('hiddenHost');
 
-					const name = btn.getAttribute('data-name');		// "hashtag"
-					const value = btn.getAttribute('data-value') || btn.textContent.trim();
+    // ======================================
+    // Hashtag: Multi-select toggle
+    // ======================================
+    const hashtagRoot = document.getElementById('hashtagTags');
+    if (hashtagRoot) {
+      hashtagRoot.addEventListener('click', function (e) {
+        const btn = e.target.closest('.hashtagTag');
+        if (!btn) return;
 
-					// 다중 선택: 형제 초기화 금지, 클릭한 것만 토글
-					btn.classList.toggle('active');
+        const name = btn.getAttribute('name');
+        const value = btn.getAttribute('value') || btn.textContent.trim();
 
-					if (btn.classList.contains('active')) {
-						addHidden(host, name, value);
-					} else {
-						removeHidden(host, name, value);
-					}
-				});
-			}
-			
-			// 해시태그: 다중 선택 토글 끝
+        btn.classList.toggle('active');
 
-			
-			// ------------------------------
-			// 지역: 단일 선택
-			// ------------------------------
-			const locationRoot = document.getElementById('locationTags');
-			if (locationRoot) {
-				locationRoot.addEventListener('click', function (e) {
-					const btn = e.target.closest('.tag-location');
-					if (!btn) return;
+        if (btn.classList.contains('active')) {
+          addHidden(host, name, value);
+        } else {
+          removeHidden(host, name, value);
+        }
+      });
+    }
 
-					const name = btn.getAttribute('data-name');		// "locationTagParam"
-					const value = btn.getAttribute('data-value') || btn.textContent.trim();
+    // ======================================
+    // Location: Single-select toggle
+    // ======================================
+    const locationRoot = document.getElementById('locationTags');
+    if (locationRoot) {
+      locationRoot.addEventListener('click', function (e) {
+        const btn = e.target.closest('.locationTag');
+        if (!btn) return;
 
-					// 기존 활성 해제 + hidden 제거
-					locationRoot.querySelectorAll('.tag-location.active').forEach(function (el) {
-						el.classList.remove('active');
-						const v = el.getAttribute('data-value') || el.textContent.trim();
-						removeHidden(host, name, v);
-					});
+        const name = btn.getAttribute('name');
+        const value = btn.getAttribute('value') || btn.textContent.trim();
 
-					// 현재 선택 반영
-					btn.classList.add('active');
-					addHidden(host, name, value);
-				});
-			}
-			
-			// 지역: 단일 선택 끝
-			
+        // Remove previous selection
+        locationRoot.querySelectorAll('.locationTag.active').forEach(function (el) {
+          el.classList.remove('active');
+          const prevValue = el.getAttribute('value') || el.textContent.trim();
+          removeHidden(host, name, prevValue);
+        });
 
-			// ------------------------------
-			// 최초 로딩: URL 파라미터 기반 프리셀렉트
-			// - locationTagParam: 단일 문자열
-			// - hashtag: 반복 파라미터(여러 개) 또는 CSV 모두 지원
-			// ------------------------------
-			(function preselectFromQuery() {
-				// locationTagParam 미리 선택
-				<c:if test="${not empty param.locationTagParam}">
-					(function () {
-						const locationTag = "<c:out value='${param.locationTagParam}'/>";
-						const buttons = document.querySelectorAll('.tag-location');
-						buttons.forEach(function (btn) {
-							if ((btn.getAttribute('data-value') || btn.textContent.trim()) === locationTag) {
-								btn.classList.add('active');
-								addHidden(host, 'locationTagParam', locationTag);
-							}
-						});
-					})();
-				</c:if>
+        // Set new selection
+        btn.classList.add('active');
+        addHidden(host, name, value);
+      });
+    }
 
-				// hashtag 미리 선택 (반복 파라미터/CSV 모두 허용)
-				<c:choose>
-					<c:when test="${not empty paramValues.hashtag}">
-						(function () {
-							// 반복 파라미터를 JS 배열로 출력
-							const hashtags = [<c:forEach items="${paramValues.hashtag}" var="h" varStatus="s">'<c:out value="${h}"/>'${!s.last ? ',' : ''}</c:forEach>];
-							const buttons = document.querySelectorAll('.tag-hashtag');
-							buttons.forEach(function (btn) {
-								const val = btn.getAttribute('data-value') || btn.textContent.trim();
-								if (hashtags.indexOf(val) !== -1) {
-									btn.classList.add('active');
-									addHidden(host, 'hashtag', val);
-								}
-							});
-						})();
-					</c:when>
-					<c:when test="${not empty param.hashtag}">
-						(function () {
-							// CSV 한 줄로 들어온 경우 분할
-							const raw = "<c:out value='${param.hashtag}'/>";
-							const hashtags = raw.split(',').map(function (x) { return x.trim(); }).filter(Boolean);
-							const buttons = document.querySelectorAll('.tag-hashtag');
-							buttons.forEach(function (btn) {
-								const val = btn.getAttribute('data-value') || btn.textContent.trim();
-								if (hashtags.indexOf(val) !== -1) {
-									btn.classList.add('active');
-									addHidden(host, 'hashtag', val);
-								}
-							});
-						})();
-					</c:when>
-				</c:choose>
-			})();
-		});
-	</script>
+     // ======================================
+    // Pre-select from URL parameters
+    // ======================================
+    (function preselectFromQuery() {
+      // Pre-select location
+      <c:if test="${not empty param.locationName}">
+        (function () {
+          const locationTag = "<c:out value='${param.locationName}'/>";
+          const buttons = document.querySelectorAll('.locationTag');
+          buttons.forEach(function (btn) {
+            if ((btn.getAttribute('value') || btn.textContent.trim()) === locationTag) {
+              btn.classList.add('active');
+              addHidden(host, 'locationName', locationTag);
+            }
+          });
+        })();
+      </c:if>
+
+      // Pre-select hashtags (supports multiple values)
+      <c:choose>
+        <c:when test="${not empty paramValues.hashtagName}">
+          (function () {
+            const hashtags = [<c:forEach items="${paramValues.hashtagName}" var="h" varStatus="s">'<c:out value="${h}"/>'${!s.last ? ',' : ''}</c:forEach>];
+            const buttons = document.querySelectorAll('.hashtagTag');
+            buttons.forEach(function (btn) {
+              const val = btn.getAttribute('value') || btn.textContent.trim();
+              if (hashtags.indexOf(val) !== -1) {
+                btn.classList.add('active');
+                addHidden(host, 'hashtagName', val);
+              }
+            });
+          })();
+        </c:when>
+        <c:when test="${not empty param.hashtagName}">
+          (function () {
+            const raw = "<c:out value='${param.hashtagName}'/>";
+            const hashtags = raw.split(',').map(function (x) { return x.trim(); }).filter(Boolean);
+            const buttons = document.querySelectorAll('.hashtagTag');
+            buttons.forEach(function (btn) {
+              const val = btn.getAttribute('value') || btn.textContent.trim();
+              if (hashtags.indexOf(val) !== -1) {
+                btn.classList.add('active');
+                addHidden(host, 'hashtagName', val);
+              }
+            });
+          })();
+        </c:when>
+      </c:choose>
+    })();
+  });
+</script>
+
 	
 	<jsp:include page="Footer.jsp" />
 </body>
