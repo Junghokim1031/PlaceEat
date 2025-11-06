@@ -2,7 +2,9 @@ package com.placeeat.board.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.placeeat.board.dao.BoardDAO;
 import com.placeeat.board.dao.BoardDTO;
@@ -29,6 +31,30 @@ public class WriterController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        // ✅ 위치 목록 생성 (원래 JSP에서 처리하던 것)
+        List<Map<String,Object>> locationLists = new ArrayList<>();
+        String[] locations = {
+            "서울특별시","부산광역시","대구광역시","인천광역시","광주광역시","대전광역시","울산광역시","세종특별자치시",
+            "경기도","강원특별자치도","충청북도","충청남도","전라북도","전라남도","경상북도","경상남도","제주특별자치도"
+        };
+        for (String name : locations) {
+            Map<String,Object> m = new HashMap<>();
+            m.put("locationName", name);
+            locationLists.add(m);
+        }
+        request.setAttribute("locationName", locationLists);
+
+        // ✅ 해시태그 목록 생성
+        List<Map<String,Object>> hashtagLists = new ArrayList<>();
+        String[] hashtags = {"#한식","#브런치","#디저트","#치킨","#회","#파스타","#비건","#카페","#가성비","#분위기좋은"};
+        for (String tag : hashtags) {
+            Map<String,Object> m = new HashMap<>();
+            m.put("hashtagName", tag);
+            hashtagLists.add(m);
+        }
+        request.setAttribute("hashtagName", hashtagLists);
+
+        // ✅ JSP 이동
         request.getRequestDispatcher("/board/Write.jsp").forward(request, response);
     }
 
@@ -42,8 +68,12 @@ public class WriterController extends HttpServlet {
         BoardDTO dto = new BoardDTO();
         dto.setTitle(request.getParameter("title"));
         dto.setContent(request.getParameter("content"));
+        dto.setLocationName(request.getParameter("locationSelect"));
+        dto.setHashtagName(request.getParameter("hashtagSelect"));
+        dto.setLatitude(Double.parseDouble(request.getParameter("latitude")));
+        dto.setLongitude(Double.parseDouble(request.getParameter("longitude")));
 
-        // ✅ details[] 배열 → 문자열 합치기
+        // ✅ details[] 처리 (빈 값 제거)
         String[] detailsArr = request.getParameterValues("details[]");
         if (detailsArr != null) {
             StringBuilder sb = new StringBuilder();
@@ -55,18 +85,9 @@ public class WriterController extends HttpServlet {
             dto.setDetails(sb.toString());
         }
 
-        // ✅ 콤보박스 선택
-        dto.setLocationName(request.getParameter("locationSelect"));
-        dto.setHashtagName(request.getParameter("hashtagSelect"));
-
-        // ✅ 좌표 설정
-        dto.setLatitude(Double.parseDouble(request.getParameter("latitude")));
-        dto.setLongitude(Double.parseDouble(request.getParameter("longitude")));
-
         // ✅ 이미지 업로드
         String saveDir = request.getServletContext().getRealPath("/img");
         String newFile = FileUtil.uploadFile(request, saveDir);
-
         if (newFile != null && !newFile.isEmpty()) {
             String renamed = FileUtil.renameFile(saveDir, newFile);
             dto.setImgOfilename(newFile);
@@ -81,7 +102,6 @@ public class WriterController extends HttpServlet {
         if (restNames != null) {
             for (int i = 0; i < restNames.length; i++) {
                 if (restNames[i].trim().isEmpty()) continue;
-
                 RestaurantDTO r = new RestaurantDTO();
                 r.setRestName(restNames[i]);
                 r.setRestAddress(restAddrs[i]);
@@ -94,7 +114,7 @@ public class WriterController extends HttpServlet {
         int result = dao.insertWrite(dto, restList);
         dao.close();
 
-        // ✅ success → list.do 이동
+        // ✅ 성공 시 list.do 이동
         if (result == 1) {
             response.sendRedirect("../board/list.do");
         } else {
