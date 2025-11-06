@@ -266,6 +266,7 @@
 			</div>
 		</form>
 	</div>
-	<jsp:include page="Footer.jsp" />
+	<jsp:include page="/Resources/Footer.jsp" />
+
 </body>
 </html>

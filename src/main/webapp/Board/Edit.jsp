@@ -406,6 +406,6 @@ class="w-75 px-3 border border-dark">
 </div>
 </form>
 </div>
-	<jsp:include page="Footer.jsp" />
+	<jsp:include page="/Resources/Footer.jsp" />
 </body>
 </html>

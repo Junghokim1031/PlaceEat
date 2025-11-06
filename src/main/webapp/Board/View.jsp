@@ -445,6 +445,6 @@
 	</script>
 	
 	<!-- 댓글작성 끝 ==================================================================================================== -->
-	<jsp:include page="Footer.jsp" />
+	<jsp:include page="/Resources/Footer.jsp" />
 </body>
 </html>
