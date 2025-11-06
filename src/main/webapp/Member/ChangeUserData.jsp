@@ -115,7 +115,7 @@
 
 <body>
 
-  <%@ include file="/Includes/Header.jsp" %>
+  <%@ include file="/Resources/Header.jsp" %>
 
   <!-- =============================
        회원 정보 수정 폼

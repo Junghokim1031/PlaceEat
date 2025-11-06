@@ -96,7 +96,7 @@
 </head>
 
 <body>
-  <%@ include file="/Includes/Header.jsp" %>
+  <%@ include file="/Resources/Header.jsp" %>
 
   <!-- =============================
        메인 캐러셀 섹션

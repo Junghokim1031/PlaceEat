@@ -111,7 +111,7 @@
 
 <body>
 
-  <%@ include file="/Includes/Header.jsp" %>
+  <%@ include file="/Resources/Header.jsp" %>
 
   <!-- ============================= -->
   <!--  로그인 폼 -->

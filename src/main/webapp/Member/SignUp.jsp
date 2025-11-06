@@ -155,7 +155,7 @@
 
 <body>
 
-  <%@ include file="/Includes/Header.jsp" %>
+  <%@ include file="/Resources/Header.jsp" %>
 
   <!-- ============================= -->
   <!-- 회원가입 폼 -->
