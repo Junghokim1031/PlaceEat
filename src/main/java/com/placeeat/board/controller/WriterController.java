@@ -9,8 +9,8 @@ import java.util.Map;
 import com.placeeat.board.dao.BoardDAO;
 import com.placeeat.board.dao.BoardDTO;
 import com.placeeat.board.dao.RestaurantDTO;
-import com.placeeat.utils.FileUtil;
-import com.placeeat.utils.JSFunction;
+import com.placeeat.util.FileUtil;
+import com.placeeat.util.JSFunction;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -21,12 +21,18 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @WebServlet("/board/write.do")
 @MultipartConfig(
-    maxFileSize = 1024 * 1024 * 2,    // 2MB
-    maxRequestSize = 1024 * 1024 * 10 // 10MB
+    maxFileSize = 1024 * 1024 * 20,    // 2MB
+    maxRequestSize = 1024 * 1024 * 100 // 10MB
 )
 public class WriterController extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
+    
+    public WriterController() {
+    	super();
+    }
+    
+    
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -66,27 +72,31 @@ public class WriterController extends HttpServlet {
 
         // ✅ BoardDTO 설정
         BoardDTO dto = new BoardDTO();
+        
+        // 더미 데이터 넣고 시험하기
+    
+        
         dto.setTitle(request.getParameter("title"));
         dto.setContent(request.getParameter("content"));
         dto.setLocationName(request.getParameter("locationSelect"));
         dto.setHashtagName(request.getParameter("hashtagSelect"));
-        dto.setLatitude(Double.parseDouble(request.getParameter("latitude")));
-        dto.setLongitude(Double.parseDouble(request.getParameter("longitude")));
+		/*
+		 * dto.setLatitude(Double.parseDouble(request.getParameter("latitude")));
+		 * dto.setLongitude(Double.parseDouble(request.getParameter("longitude")));
+		 */
+        dto.setLatitude(Double.parseDouble("37.4999"));
+        dto.setLongitude(Double.parseDouble("127.0365"));
 
         // ✅ details[] 처리 (빈 값 제거)
-        String[] detailsArr = request.getParameterValues("details[]");
-        if (detailsArr != null) {
-            StringBuilder sb = new StringBuilder();
-            for (String d : detailsArr) {
-                if (d != null && !d.trim().isEmpty()) {
-                    sb.append(d.trim()).append("\n");
-                }
-            }
-            dto.setDetails(sb.toString());
-        }
+		/*
+		 * String[] detailsArr = request.getParameterValues("details[]"); if (detailsArr
+		 * != null) { StringBuilder sb = new StringBuilder(); for (String d :
+		 * detailsArr) { if (d != null && !d.trim().isEmpty()) {
+		 * sb.append(d.trim()).append("\n"); } } dto.setDetails(sb.toString()); }
+		 */
 
         // ✅ 이미지 업로드
-        String saveDir = request.getServletContext().getRealPath("/img");
+        String saveDir = request.getServletContext().getRealPath("/Resources/Img");
         String newFile = FileUtil.uploadFile(request, saveDir);
         if (newFile != null && !newFile.isEmpty()) {
             String renamed = FileUtil.renameFile(saveDir, newFile);
@@ -99,15 +109,12 @@ public class WriterController extends HttpServlet {
         String[] restAddrs = request.getParameterValues("restAddress[]");
 
         List<RestaurantDTO> restList = new ArrayList<>();
-        if (restNames != null) {
-            for (int i = 0; i < restNames.length; i++) {
-                if (restNames[i].trim().isEmpty()) continue;
-                RestaurantDTO r = new RestaurantDTO();
-                r.setRestName(restNames[i]);
-                r.setRestAddress(restAddrs[i]);
-                restList.add(r);
-            }
-        }
+		/*
+		 * if (restNames != null) { for (int i = 0; i < restNames.length; i++) { if
+		 * (restNames[i].trim().isEmpty()) { continue; } RestaurantDTO r = new
+		 * RestaurantDTO(); r.setRestName(restNames[i]); r.setRestAddress(restAddrs[i]);
+		 * restList.add(r); } }
+		 */
 
         // ✅ DB 저장
         BoardDAO dao = new BoardDAO();
@@ -118,6 +125,7 @@ public class WriterController extends HttpServlet {
         if (result == 1) {
             response.sendRedirect("../board/list.do");
         } else {
+        	System.out.println("result : " + result);
             JSFunction.alertLocation(response, "글 등록 실패!", "../board/write.do");
         }
     }
