@@ -7,7 +7,7 @@ import java.util.Map;
 
 import com.placeeat.board.dao.BoardDAO;
 import com.placeeat.board.dao.BoardDTO;
-import com.placeeat.util.BoardPage;
+import com.placeeat.utils.BoardPage;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -16,7 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-@WebServlet("/controller/mypage.do")
+@WebServlet("/Board/Mypage.do")
 public class MyPageController extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
@@ -30,7 +30,7 @@ public class MyPageController extends HttpServlet {
         
         //임시 테스트 용 _로그인창이랑 연동시 지우기
         if (session.getAttribute("userId")==null) {
-        	session.setAttribute("userId", "user01"); // DB에 존재하는 더미 user_id 테스트 후 삭제
+        	session.setAttribute("userId", "user001"); // DB에 존재하는 더미 user_id 테스트 후 삭제
         	System.out.println("테스트용 userId 세션 생성됨: user01"); //테스트 후 삭제
         }
         
@@ -38,7 +38,7 @@ public class MyPageController extends HttpServlet {
         String userId = (String) session.getAttribute("userId"); 
 
         if (userId == null) {
-            resp.sendRedirect(req.getContextPath() + "/login.jsp"); // 로그인 안했으면 로그인 페이지로
+            resp.sendRedirect(req.getContextPath() + "/Login.jsp"); // 로그인 안했으면 로그인 페이지로
             return;
         }
 
@@ -67,7 +67,7 @@ public class MyPageController extends HttpServlet {
 
         // 페이지 네비게이션 HTML
         String pagingImg = BoardPage.pagingStr(totalCount, pageSize, blockPage, pageNum,
-                req.getContextPath() + "/controller/mypage.do");
+                req.getContextPath() + "/Board/Mypage.do");
 
         // request에 전달
         map.put("pagingImg", pagingImg);
@@ -78,7 +78,7 @@ public class MyPageController extends HttpServlet {
         req.setAttribute("boardLists", boardLists);
         req.setAttribute("map", map);
 
-        req.getRequestDispatcher("/Board/mypage.jsp").forward(req, resp);
+        req.getRequestDispatcher("/Board/Mypage.jsp").forward(req, resp);
     }
 
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

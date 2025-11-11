@@ -7,7 +7,7 @@ import java.util.Map;
 
 import com.placeeat.board.dao.BoardDAO;
 import com.placeeat.board.dao.BoardDTO;
-import com.placeeat.util.BoardPage;
+import com.placeeat.utils.BoardPage;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -18,7 +18,7 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * Servlet implementation class ListController
  */
-@WebServlet("/controller/list.do")
+@WebServlet("/Board/List.do")
 public class ListController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
@@ -33,75 +33,92 @@ public class ListController extends HttpServlet {
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		 // DAO 생성
-	       BoardDAO dao = new BoardDAO();
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) 
+            throws ServletException, IOException {
+        BoardDAO dao = new BoardDAO();
+        
+        try {
+            // 뷰에 전달할 매개변수 저장용 맵 생성
+            Map<String, Object> map = new HashMap<String, Object>();
 
-	        // 뷰에 전달할 매개변수 저장용 맵 생성
-	        Map<String, Object> map = new HashMap<String, Object>();
+            // ======================================
+            // 1) 텍스트 검색 조건 (제목/내용)
+            // ======================================
+            String searchField = req.getParameter("searchField");
+            String searchWord = req.getParameter("searchWord");
+            if (searchWord != null && !searchWord.isEmpty()) {
+                map.put("searchField", searchField);
+                map.put("searchWord", searchWord);
+            }
+            
+            // ======================================
+            // 2) 위치 필터 (단일 선택)
+            // ======================================
+            String locationName = req.getParameter("locationName");
+            if (locationName != null && !locationName.isEmpty()) {
+                map.put("locationName", locationName);  // ✅ ADD THIS
+            }
+            
+            // ======================================
+            // 3) 해시태그 필터 (다중 선택)
+            // ======================================
+            String[] hashtagNames = req.getParameterValues("hashtagName");  // ✅ ADD THIS
+            if (hashtagNames != null && hashtagNames.length > 0) {
+                map.put("hashtagNames", hashtagNames);  // ✅ ADD THIS
+            }
+            
+            int totalCount = dao.selectCount(map);  // 게시물 개수
 
-	        String searchField = req.getParameter("searchField");
-	        String searchWord = req.getParameter("searchWord");
-	        if (searchWord != null) {
-	            // 쿼리스트링으로 전달받은 매개변수 중 검색어가 있다면 map에 저장
-	            map.put("searchField", searchField);
-	            map.put("searchWord", searchWord);
-	        }
-	        
-	     
-	        
-	        int totalCount = dao.selectCount(map);  // 게시물 개수
+            /* 페이지 처리 start */
+            int pageSize = 6;
+            int blockPage = 5;
+            
+            int pageNum = 1;
+            String pageTemp = req.getParameter("pageNum");
+            if (pageTemp != null && !pageTemp.equals(""))
+                pageNum = Integer.parseInt(pageTemp);
 
-	        /* 페이지 처리 start */
-	        /* int pageSize = 10; // 한 페이지당 출력할 게시물 수 					*/
-	        int pageSize = 6; // 한 페이지당 출력할 게시물 수
-	        int blockPage = 5; // 한 블럭당 출력할 페이지 수
-	        
-	        
-	        // 현재 페이지 확인
-	        int pageNum = 1;  // 기본값
-	        String pageTemp = req.getParameter("pageNum");
-	        if (pageTemp != null && !pageTemp.equals(""))
-	            pageNum = Integer.parseInt(pageTemp); // 요청받은 페이지로 수정
+            int start = (pageNum - 1) * pageSize + 1;
+            int end = pageNum * pageSize;
+            
+            map.put("start", start);
+            map.put("end", end);
+            /* 페이지 처리 end */
+ 
+            
+            // 게시물 목록 조회
+            List<BoardDTO> boardLists = dao.selectListPage(map);
+            
+            // 지역 목록 조회
+            List<String> locationList = dao.selectAllLocations();
+            
+            // 해시태그 목록 조회
+            List<String> hashtagList = dao.selectAllHashtags();
 
-	        // 목록에 출력할 게시물 범위 계산
-	        int start = (pageNum - 1) * pageSize + 1;  // 첫 게시물 번호
-	        int end = pageNum * pageSize; // 마지막 게시물 번호
-	        
-	        map.put("start", start);
-	        map.put("end", end);
-	        /* 페이지 처리 end */
+            // 뷰에 전달할 매개변수 추가
+            String pagingImg = BoardPage.pagingStr(totalCount, pageSize,
+                    blockPage, pageNum, req.getContextPath() + "/Board/List.do");
+            map.put("pagingImg", pagingImg);
+            map.put("totalCount", totalCount);
+            map.put("pageSize", pageSize);
+            map.put("pageNum", pageNum);
+            
+            // 전달할 데이터를 request 영역에 저장
+            req.setAttribute("boardLists", boardLists);
+            req.setAttribute("map", map);
+            req.setAttribute("locationName", locationList);
+            req.setAttribute("hashtagName", hashtagList);
+            
+            dao.close();
+            
+            req.getRequestDispatcher("/Board/List.jsp").forward(req, resp);
+            
+        } catch (Exception e) {
+            System.out.println("ListController Failure");
+            e.printStackTrace();
+        }
+    }
 
-	        //게시물 목록 초회
-	        List<BoardDTO> boardLists = dao.selectListPage(map);  // 게시물 목록 받기
-	        
-	        // 지역 목록 조회
-	        List<String> locationList = dao.selectAllLocations();
-	        
-	        //해시테그 목록 조회
-	        List<String> hashtagList = dao.selectAllHashtags();
-	        
-	        
-
-	        // 뷰에 전달할 매개변수 추가
-	        String pagingImg = BoardPage.pagingStr(totalCount, pageSize,
-	                blockPage, pageNum, req.getContextPath() + "/controller/list.do");  // 바로가기 영역 HTML 문자열
-	        map.put("pagingImg", pagingImg);
-	        map.put("totalCount", totalCount);
-	        map.put("pageSize", pageSize);
-	        map.put("pageNum", pageNum);
-	        
-	        
-	        
-	        // 전달할 데이터를 request 영역에 저장 후 List.jsp로 포워드
-	        req.setAttribute("boardLists", boardLists);
-	        req.setAttribute("map", map);
-	        req.setAttribute("locationList", locationList);
-	        req.setAttribute("hashtagList", hashtagList);
-	        req.getRequestDispatcher("/Board/list.jsp").forward(req, resp);
-	        
-	        dao.close(); // DB 연결 닫기
-	}
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)

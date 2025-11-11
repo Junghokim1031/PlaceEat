@@ -15,7 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * Servlet implementation class ListController
  */
-@WebServlet("/controller/main.do")
+@WebServlet("/Board/Main.do")
 public class MainController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
@@ -40,7 +40,7 @@ public class MainController extends HttpServlet {
 	        dao.close();
 
 	        // main.jsp로 포워딩
-	        req.getRequestDispatcher("/Board/main.jsp").forward(req, resp);
+	        req.getRequestDispatcher("/Board/Main.jsp").forward(req, resp);
 	}
 
 	/**
