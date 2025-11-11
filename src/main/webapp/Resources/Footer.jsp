@@ -3,6 +3,7 @@
 <br>
 <div id="footer" class=" px-0 mt-3">
 	<div class="header-divider" class=" px-0 mx-0"></div>
+	<br>
 	<div id = "footer-content" class="row align-items-end px-5 py-3">
 		<div class="col-4">
 			<h1 id="footer-logo">PLACE-EAT</h1>
