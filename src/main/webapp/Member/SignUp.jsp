@@ -13,6 +13,8 @@
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
         crossorigin="anonymous" />
 
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/Resources/CSS/Header.css">
+
   <style>
   	
 	  /* ================================
@@ -24,23 +26,6 @@
       background-color: #ffffff;
       padding-bottom: 100px;
     }
-
-	header {
-	  background-color: #ffffff;
-	  font-weight: bolder;
-	}
-	
-	header img {
-	  width: 100px;
-	  height: auto;
-	}
-	
-	
-	.header-divider {
-	  height: 4px;
-	  background: linear-gradient(to right, #bdf3ff, #2193b0);
-	  border: none;
-	}
 
     .join-box {
       max-width: 500px;
@@ -98,7 +83,7 @@
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const checkBtn = document.querySelector('.btn-checkid');
-    const userIdInput = document.querySelector('input[name="userId"]');
+    const userIdInput = document.querySelector('input[name="userid"]');
 
     checkBtn.addEventListener('click', function() {
       const userId = userIdInput.value.trim();
@@ -110,16 +95,16 @@
       }
 
       //  Ajax 요청 (아이디 중복확인)
-      fetch("${pageContext.request.contextPath}/IdCheck.do?userId=" + encodeURIComponent(userId))
+      fetch("${pageContext.request.contextPath}/Member/idCheck.do?userid=" + encodeURIComponent(userId))
         .then(response => response.text())
         .then(result => {
-          if (result.trim() === 'usable') {
-            alert('사용 가능한 아이디입니다.');
-          } else if (result.trim() === 'duplicate') {
-            alert('이미 사용 중인 아이디입니다.');
-          } else {
-            alert('서버 응답이 올바르지 않습니다.');
-          }
+        	if (result.trim() === 'available') {
+       		  alert('사용 가능한 아이디입니다.');
+       		} else if (result.trim() === 'duplicate') {
+       		  alert('이미 사용 중인 아이디입니다.');
+       		} else {
+       		  alert('서버 응답이 올바르지 않습니다.');
+       		}
         })
         .catch(error => {
           console.error('에러 발생:', error);
@@ -152,10 +137,43 @@
     });
   });
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const emailCheckBtn = document.querySelector('.btn-checkemail');
+  const emailInput = document.querySelector('input[name="email"]');
+
+  emailCheckBtn.addEventListener('click', function() {
+    const email = emailInput.value.trim();
+
+    if (email === '') {
+      alert('이메일을 입력해주세요.');
+      emailInput.focus();
+      return;
+    }
+
+    fetch("${pageContext.request.contextPath}/Member/emailCheck.do?email=" + encodeURIComponent(email))
+      .then(response => response.text())
+      .then(result => {
+    	  if (result.trim() === 'available') {
+       		  alert('사용 가능한 이메일입니다.');
+       		} else if (result.trim() === 'duplicate') {
+       		  alert('이미 사용 중인 이메일입니다.');
+       		} else {
+       		  alert('서버 응답이 올바르지 않습니다.');
+       		}
+      })
+      .catch(error => {
+        console.error('에러 발생:', error);
+        alert('서버 요청 중 오류가 발생했습니다.');
+      });
+  });
+});
+</script>
+
 
 <body>
 
-  <%@ include file="/Resources/Header.jsp" %>
+	<jsp:include page="/Resources/Header.jsp" />
 
   <!-- ============================= -->
   <!-- 회원가입 폼 -->
@@ -168,11 +186,12 @@
       <div class="alert alert-info text-center">${message}</div>
     </c:if>
 
-    <form action="${pageContext.request.contextPath}/SignUp.do" method="post">
-      
+    <form action="${pageContext.request.contextPath}/Member/join.do" method="post">
+
+   
       <!-- 아이디 -->
       <div class="mb-3 d-flex">
-        <input type="text" name="userId" class="form-control me-2" placeholder="아이디" value="${param.userId}" />
+        <input type="text" name="userid" class="form-control me-2" placeholder="아이디" value="${param.userid}" />
         <button type="button" class="btn-checkid">중복확인</button>
       </div>
 
@@ -183,12 +202,12 @@
 
       <!-- 비밀번호 확인 -->
       <div class="mb-3">
-        <input type="password" name="password2" class="form-control" placeholder="비밀번호 확인" />
+        <input type="password" name="confirmPassword" class="form-control" placeholder="비밀번호 확인" />
       </div>
 
       <!-- 이름 -->
       <div class="mb-3">
-        <input type="text" name="userName" class="form-control" placeholder="이름" />
+        <input type="text" name="name" class="form-control" placeholder="이름" />
       </div>
 
       <!-- 생년월일 -->
@@ -211,9 +230,11 @@
       </div>
 
       <!-- 이메일 -->
-      <div class="mb-3">
-        <input type="email" name="email" class="form-control" placeholder="이메일" />
-      </div>
+	 <div class="mb-3 d-flex">
+		 <input type="email" name="email" class="form-control me-2" placeholder="이메일" />
+		 <button type="button" class="btn btn-secondary btn-checkemail">중복확인</button>
+	 </div>
+
 
       <!-- 회원등급 -->
       <div class="mb-3">
