@@ -1,0 +1,17 @@
+
+ 
+ header {
+      background-color: #ffffff;
+      font-weight: bolder;
+    }
+
+    header img {
+      width: 100px;
+      height: auto;
+    }
+
+    .header-divider {
+      height: 4px;
+      background: linear-gradient(to right, #bdf3ff, #2193b0);
+      border: none;
+    }
