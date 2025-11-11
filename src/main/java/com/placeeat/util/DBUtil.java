@@ -4,9 +4,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 
 public class DBUtil {
-	private static final String URL = "jdbc:oracle:thin:@192.168.219.160:1521:xe";
-    private static final String USER = "pe_team";
-    private static final String PASSWORD = "pe1234";
+    private static final String URL = "jdbc:oracle:thin:@localhost:1521:xe";
+    private static final String USER = "pe_psc";
+    private static final String PASSWORD = "psc1234";
 
     static {
         try {

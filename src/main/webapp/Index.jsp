@@ -8,171 +8,28 @@
   <meta charset="UTF-8">
   <title>Place & Eat</title>
 
-  <!-- =============================
-       CSS / Library Import
-  ============================== -->
+  <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
         rel="stylesheet"
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
         crossorigin="anonymous" />
-  <link rel="stylesheet" href="${pageContext.request.contextPath}/Resources/CSS/Header.css">
 
   <style>
+    /* =============================
+       기본 스타일
+    ============================= */
     body {
       font-family: 'Arial', sans-serif;
     }
 
-    /* =============================
-       캐러셀 (Main Carousel)
-    ============================== */
-    #travel-carousel {
-      position: relative;
-      overflow: hidden;
+    header {
+      background-color: #ffffff;
+      font-weight: bolder;
     }
 
-    .carousel-item {
-      height: 500px;
-      position: relative;
-    }
-
-    .carousel-item img {
-      width: 100%;
-      height: 500px;
-      object-fit: cover;
-      transition: transform 0.6s ease;
-    }
-
-    .carousel-caption {
-      position: absolute;
-      bottom: 40px;
-      left: 50px;
-      text-align: left;
-      color: #ffffff;
-      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
-    }
-
-    .carousel-caption h2 {
-      font-size: 2rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
-    .carousel-caption p {
-      font-size: 1.05rem;
-      line-height: 1.5;
-      max-width: 500px;
-      opacity: 0.9;
-      color: #e0e0e0;
-    }
-
-    .carousel-indicators {
-      bottom: 20px;
-    }
-
-    .carousel-indicators [data-bs-target] {
-      background-color: rgba(255, 255, 255, 0.6);
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      margin: 0 5px;
-      transition: background-color 0.3s ease;
-    }
-
-    .carousel-indicators .active {
-      background-color: #64c3db;
-    }
-
-    /* =============================
-       추천 기사 카드 (Recommend Section)
-    ============================== */
-    .travel-card {
-      height: 340px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      overflow: hidden;
-    }
-
-    .travel-card img {
-      width: 100%;
-      height: 180px;
-      object-fit: cover;
-    }
-
-    .card:hover {
-      transform: scale(1.02);
-      transition: 0.2s;
-      cursor: pointer;
-    }
-
-    .travel-card .card-body {
-      flex: 1;
-      padding: 8px 10px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    .travel-card .card-title {
-      font-weight: bold;
-      font-size: 1rem;
-      margin-bottom: 6px;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .travel-card .card-text {
-      font-size: 0.9rem;
-      color: #666;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    /* =============================
-       최신 기사 (Latest Articles)
-    ============================== */
-    .latest-list a {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 14px 10px;
-      border-bottom: 1px solid #eee;
-      color: #333;
-      text-decoration: none;
-      transition: all 0.25s ease;
-    }
-
-    .latest-list a:hover {
-      background: #f9f9f9;
-      color: #007bff;
-      padding-left: 15px;
-    }
-
-    .latest-list .title {
-      font-weight: 500;
-      font-size: 1rem;
-      flex: 1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .latest-list .meta {
-      flex-shrink: 0;
-      font-size: 0.85rem;
-      color: #888;
-      white-space: nowrap;
-    }
-
-    .latest-list .meta i {
-      margin-right: 5px;
-      color: #aaa;
+    header img {
+      width: 100px;
+      height: auto;
     }
 
     .header-divider {
@@ -181,111 +38,156 @@
       border: none;
     }
 
-    .divider {
-      height: 1px;
-      background: gray;
-      border: none;
+    /* =============================
+       캐러셀 (메인 섹션)
+    ============================= */
+    .main-section h2 {
+      font-size: 2rem;
+      color: #333;
+    }
+
+    .main-section p {
+      font-size: 1.1rem;
+      color: #555;
+      line-height: 1.6;
+    }
+
+    .carousel-item {
+      padding: 40px 0;
+    }
+
+    .carousel-item img {
+      width: 100%;
+      height: 400px;
+      object-fit: cover;
+    }
+
+    .carousel-indicators [data-bs-target] {
+      background-color: gray;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .carousel-indicators .active {
+      background-color: black;
+    }
+
+    .carousel-item .col-md-6:first-child {
+      padding-left: 50px;
+      padding-right: 40px;
+    }
+
+    /* =============================
+       카드(여행콕콕)
+    ============================= */
+    .travel-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .card:hover {
+      transform: scale(1.02);
+      transition: 0.2s;
+      cursor: pointer;
     }
   </style>
 </head>
 
 <body>
-  <jsp:include page="/Resources/Header.jsp" />
+  <%@ include file="/Resources/Header.jsp" %>
 
   <!-- =============================
-       메인 캐러셀 (Main Carousel)
-  ============================== -->
-  <c:if test="${not empty mainArticles}">
-    <div id="travel-carousel" class="carousel slide" data-bs-ride="carousel">
+       메인 캐러셀 섹션
+  ============================= -->
+  <section class="main-section container my-5">
+    <div id="travelCarousel" class="carousel slide" data-bs-ride="carousel">
+
+      <!-- 캐러셀 아이템 -->
       <div class="carousel-inner">
         <c:forEach var="article" items="${mainArticles}" varStatus="status">
-          <div class="carousel-item ${status.first ? 'active' : ''}">
-            <img src="${pageContext.request.contextPath}/resources/img/${article.img_sfilename}" alt="${article.title}">
-            <div class="carousel-caption">
-              <h2>${article.title}</h2>
-              <p>${article.details}</p>
-            </div>
-          </div>
-        </c:forEach>
-      </div>
-
-      <div class="carousel-indicators">
-        <c:forEach var="i" begin="0" end="${fn:length(mainArticles)-1}">
-          <button type="button" data-bs-target="#travel-carousel" data-bs-slide-to="${i}"
-                  class="${i == 0 ? 'active' : ''}"></button>
-        </c:forEach>
-      </div>
-    </div>
-  </c:if>
-
-  <c:if test="${empty mainArticles}">
-    <div class="text-center text-muted py-5">등록된 메인 기사가 없습니다.</div>
-  </c:if>
-
-  <div class="header-divider"></div>
-
-  <!-- =============================
-       여행콕콕 (Recommend Section)
-  ============================== -->
-  <section class="container my-5">
-    <h3 class="fw-bold mb-4">여행콕콕</h3>
-
-    <c:if test="${not empty recommendArticles}">
-      <div class="row g-4">
-        <c:forEach var="article" items="${recommendArticles}">
-          <div class="col-md-3">
-            <div class="card travel-card"
-                 onclick="location.href='${pageContext.request.contextPath}/board/view.do?board_id=${article.board_id}'">
-              <img src="${pageContext.request.contextPath}/resources/img/${article.img_sfilename}" class="card-img-top" alt="${article.title}">
-              <div class="card-body">
-                <h6 class="card-title fw-bold">${article.title}</h6>
-                <p class="card-text small text-muted">${article.details}</p>
+          <div class="carousel-item <c:if test='${status.first}'>active</c:if>">
+            <div class="row align-items-center">
+              
+              <!-- 왼쪽 설명 -->
+              <div class="col-md-6">
+                <h2 class="fw-bold mb-3">${article.title}</h2>
+                <p class="text-muted">${article.summary}</p>
               </div>
+
+              <!-- 오른쪽 이미지 -->
+              <div class="col-md-6">
+                <a href="${pageContext.request.contextPath}/BoardView.do?board_id=${article.board_id}">
+                  <img src="${pageContext.request.contextPath}/Img/${article.image}"
+                       class="d-block w-100 rounded" alt="${article.title}">
+                </a>
+              </div>
+
             </div>
           </div>
         </c:forEach>
       </div>
-    </c:if>
 
-    <c:if test="${empty recommendArticles}">
-      <div class="text-center text-muted my-5">추천 기사가 없습니다.</div>
-    </c:if>
+      <!-- 인디케이터 -->
+      <c:if test="${not empty mainArticles}">
+        <div class="carousel-indicators mt-3">
+          <c:forEach var="i" begin="0" end="${fn:length(mainArticles)-1}">
+            <button type="button" data-bs-target="#travelCarousel" data-bs-slide-to="${i}"
+              class="<c:if test='${i == 0}'>active</c:if>"
+              aria-current="<c:if test='${i == 0}'>true</c:if>"
+              aria-label="Slide ${i + 1}"></button>
+          </c:forEach>
+        </div>
+      </c:if>
+    </div>
   </section>
 
-  <div class="divider"></div>
+  <!-- =============================
+       여행콕콕 (추천 기사)
+  ============================= -->
+  <section class="container my-5">
+    <h3 class="fw-bold mb-4">여행콕콕</h3>
+    <div class="row g-4">
+      <c:forEach var="article" items="${recommendArticles}">
+        <div class="col-md-3">
+          <div class="card travel-card"
+               onclick="location.href='${pageContext.request.contextPath}/BoardView.do?board_id=${article.board_id}'">
+            <img src="${pageContext.request.contextPath}/Img/${article.image}"
+                 class="card-img-top" alt="${article.title}">
+            <div class="card-body">
+              <h6 class="card-title fw-bold">${article.title}</h6>
+              <p class="card-text small text-muted">${article.summary}</p>
+            </div>
+          </div>
+        </div>
+      </c:forEach>
+    </div>
+  </section>
 
   <!-- =============================
-       최신 기사 목록 (Latest Section)
-  ============================== -->
+       최신 기사 목록
+  ============================= -->
   <section class="container my-5">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h3 class="fw-bold mb-0">최신 기사</h3>
-      <a href="${pageContext.request.contextPath}/board/list.do" class="text-decoration-none text-primary">더보기</a>
+      <a href="${pageContext.request.contextPath}/BoardList.do" class="text-decoration-none text-primary">더보기</a>
     </div>
-
-    <c:if test="${not empty latestArticles}">
-      <div class="latest-list">
-        <c:forEach var="article" items="${latestArticles}">
-          <a href="${pageContext.request.contextPath}/board/view.do?board_id=${article.board_id}">
-            <span class="title">${article.title}</span>
-            <span class="meta">
-              <i class="fa-regular fa-eye"></i> ${article.viewcount} |
-              <i class="fa-regular fa-calendar"></i> ${article.created_at}
-            </span>
-          </a>
-        </c:forEach>
-      </div>
-    </c:if>
-
-    <c:if test="${empty latestArticles}">
-      <div class="text-center text-muted my-5">최근 등록된 기사가 없습니다.</div>
-    </c:if>
+    <ul class="list-group">
+      <c:forEach var="article" items="${latestArticles}" end="9">
+        <li class="list-group-item">
+          <a href="${pageContext.request.contextPath}/BoardView.do?board_id=${article.board_id}"
+             class="text-dark text-decoration-none">${article.title}</a>
+        </li>
+      </c:forEach>
+    </ul>
   </section>
 
-  <!-- =============================
-       JS / Bootstrap Script
-  ============================== -->
+  <div class="footer-divider"></div>
+
+  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
           crossorigin="anonymous"></script>
 </body>
 </html>

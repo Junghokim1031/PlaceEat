@@ -12,12 +12,9 @@ public class MemberDAO {
 
     // insert (회원가입) - 반환 int : 1 성공
     public int insertMember(MemberVO mVo) {
-        String sql = "INSERT INTO user_table(user_id, password, user_name, birth_date, gender, email, grade, created_at, reset_token) "
-                   + "VALUES(?, ?, ?, TO_DATE(?, 'YYYY-MM-DD'), ?, ?, ?, SYSDATE, NULL)";
-        int result = -1;
-
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        int result = 0;
+        String sql = "insert into member(userid, password, name, birth, gender, email, grade, reset_token) values(?, ?, ?, ?, ?, ?, ?, null)";
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, mVo.getUserid());
             pstmt.setString(2, mVo.getPassword());
             pstmt.setString(3, mVo.getName());
@@ -26,57 +23,31 @@ public class MemberDAO {
             pstmt.setString(6, mVo.getEmail());
             pstmt.setString(7, mVo.getGrade());
             result = pstmt.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return result;
-    }
-
-    // 회원 정보 수정
-    public int updateMember(MemberVO mVo) {
-        int result = 0;
-        String sql = "UPDATE user_table "
-                   + "SET password=?, user_name=?, birth_date=TO_DATE(?, 'YYYY-MM-DD') "
-                   + "WHERE user_id=?";
-        try (Connection conn = getConnection();
-             PreparedStatement psmt = conn.prepareStatement(sql)) {
-
-            psmt.setString(1, mVo.getPassword());
-            psmt.setString(2, mVo.getName());
-            psmt.setString(3, mVo.getBirth());
-            psmt.setString(4, mVo.getUserid());
-            result = psmt.executeUpdate();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        } catch (Exception e) { e.printStackTrace(); }
         return result;
     }
 
     // 아이디 중복 확인 (기존 메서드명 유지)
     public boolean isUserIdDuplicate(String userid) {
-        String sql = "select user_id from user_table where user_id=?";
+        String sql = "select userid from member where userid=?";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, userid);
             try (ResultSet rs = pstmt.executeQuery()) { return rs.next(); }
-        } catch (Exception e) { e.printStackTrace(); return false; }
-        
+        } catch (Exception e) { e.printStackTrace(); return true; }
     }
 
     // 이메일 중복
     public boolean isEmailDuplicate(String email) {
-        String sql = "select email from user_table where email=?";
+        String sql = "select email from member where email=?";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, email);
             try (ResultSet rs = pstmt.executeQuery()) { return rs.next(); }
-        } catch (Exception e) { e.printStackTrace(); return false; }
+        } catch (Exception e) { e.printStackTrace(); return true; }
     }
 
     // 로그인 체크 (문자열 비교은 bcrypt를 적용했으면 변경 필요)
     public int userCheck(String userid, String pwdPlain) {
-        String sql = "select password from user_table where user_id=?";
+        String sql = "select password from member where userid=?";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, userid);
             ResultSet rs = pstmt.executeQuery();
@@ -92,16 +63,16 @@ public class MemberDAO {
     // getMember
     public MemberVO getMember(String userid) {
         MemberVO m = null;
-        String sql = "select * from user_table where user_id=?";
+        String sql = "select * from member where userid=?";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, userid);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
                 m = new MemberVO();
-                m.setUserid(rs.getString("user_id"));
+                m.setUserid(rs.getString("userid"));
                 m.setPassword(rs.getString("password"));
-                m.setName(rs.getString("user_name"));
-                m.setBirth(rs.getString("birth_date"));
+                m.setName(rs.getString("name"));
+                m.setBirth(rs.getString("birth"));
                 m.setGender(rs.getString("gender"));
                 m.setEmail(rs.getString("email"));
                 m.setGrade(rs.getString("grade"));
@@ -114,12 +85,12 @@ public class MemberDAO {
     // findId by name + birth
     public String findIdByNameBirth(String name, String birth) {
         String userId = null;
-        String sql = "select user_id from user_table where user_name=? and birth_date=?";
+        String sql = "select userid from member where name=? and birth=?";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, name);
             pstmt.setString(2, birth);
             ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) userId = rs.getString("user_id");
+            if (rs.next()) userId = rs.getString("userid");
         } catch (Exception e) { e.printStackTrace(); }
         return userId;
     }
@@ -127,13 +98,13 @@ public class MemberDAO {
     // find user by userid+name+email : 기존 시그니처 유지 (문자열 반환)
     public String findUserByIdNameEmail(String userid, String name, String email) {
         String resultId = null;
-        String sql = "select user_id from user_table where user_id=? and user_name=? and email=?";
+        String sql = "select userid from member where userid=? and name=? and email=?";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, userid);
             pstmt.setString(2, name);
             pstmt.setString(3, email);
             ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) resultId = rs.getString("user_id");
+            if (rs.next()) resultId = rs.getString("userid");
         } catch (Exception e) { e.printStackTrace(); }
         return resultId;
     }
@@ -141,7 +112,7 @@ public class MemberDAO {
     // MemberVO 반환형도 제공 (호환용)
     public MemberVO findMemberByIdNameEmail(String userid, String name, String email) {
         MemberVO member = null;
-        String sql = "select * from user_table where user_id=? and user_name=? and email=?";
+        String sql = "select * from member where userid=? and name=? and email=?";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, userid);
             pstmt.setString(2, name);
@@ -149,10 +120,10 @@ public class MemberDAO {
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
                 member = new MemberVO();
-                member.setUserid(rs.getString("user_id"));
-                member.setName(rs.getString("user_name"));
+                member.setUserid(rs.getString("userid"));
+                member.setName(rs.getString("name"));
                 member.setEmail(rs.getString("email"));
-                member.setBirth(rs.getString("birth_date"));
+                member.setBirth(rs.getString("birth"));
                 member.setResetToken(rs.getString("reset_token"));
             }
         } catch (Exception e) { e.printStackTrace(); }
@@ -161,7 +132,7 @@ public class MemberDAO {
 
     // save token
     public void saveResetToken(String userid, String token) {
-        String sql = "update user_table set reset_token=? where user_id=?";
+        String sql = "update member set reset_token=? where userid=?";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, token);
             pstmt.setString(2, userid);
@@ -172,11 +143,11 @@ public class MemberDAO {
     // find userid by token (string)
     public String findUserByToken(String token) {
         String userid = null;
-        String sql = "select user_id from user_table where reset_token=?";
+        String sql = "select userid from member where reset_token=?";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, token);
             ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) userid = rs.getString("user_id");
+            if (rs.next()) userid = rs.getString("userid");
         } catch (Exception e) { e.printStackTrace(); }
         return userid;
     }
@@ -184,16 +155,16 @@ public class MemberDAO {
     // find member by token (VO)
     public MemberVO findMemberByToken(String token) {
         MemberVO member = null;
-        String sql = "select * from user_table where reset_token=?";
+        String sql = "select * from member where reset_token=?";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, token);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
                 member = new MemberVO();
-                member.setUserid(rs.getString("user_id"));
-                member.setName(rs.getString("user_name"));
+                member.setUserid(rs.getString("userid"));
+                member.setName(rs.getString("name"));
                 member.setEmail(rs.getString("email"));
-                member.setBirth(rs.getString("birth_date"));
+                member.setBirth(rs.getString("birth"));
                 member.setResetToken(rs.getString("reset_token"));
             }
         } catch (Exception e) { e.printStackTrace(); }
@@ -202,7 +173,7 @@ public class MemberDAO {
 
     // update password (store hashed expected)
     public void updatePassword(String userid, String newPwHashed) {
-        String sql = "update user_table set password=? where user_id=?";
+        String sql = "update member set password=? where userid=?";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, newPwHashed);
             pstmt.setString(2, userid);
@@ -212,7 +183,7 @@ public class MemberDAO {
 
     // clear token
     public void clearResetToken(String userid) {
-        String sql = "update user_table set reset_token=null where user_id=?";
+        String sql = "update member set reset_token=null where userid=?";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, userid);
             pstmt.executeUpdate();
@@ -222,7 +193,7 @@ public class MemberDAO {
     // get email
     public String getEmailByUserid(String userid) {
         String email = null;
-        String sql = "select email from user_table where user_id=?";
+        String sql = "select email from member where userid=?";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, userid);
             ResultSet rs = pstmt.executeQuery();
@@ -230,6 +201,4 @@ public class MemberDAO {
         } catch (Exception e) { e.printStackTrace(); }
         return email;
     }
-    
-    
 }

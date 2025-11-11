@@ -11,8 +11,6 @@
         rel="stylesheet"
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
         crossorigin="anonymous" />
-        
-  <link rel="stylesheet" href="${pageContext.request.contextPath}/Resources/CSS/Header.css">
 
   <style>
     /* =============================
@@ -22,6 +20,22 @@
       font-family: 'Arial', sans-serif;
       background-color: #ffffff;
       padding-bottom: 100px;
+    }
+
+    header {
+      background-color: #ffffff;
+      font-weight: bolder;
+    }
+
+    header img {
+      width: 100px;
+      height: auto;
+    }
+
+    .header-divider {
+      height: 4px;
+      background: linear-gradient(to right, #bdf3ff, #2193b0);
+      border: none;
     }
 
     /* =============================
@@ -101,7 +115,7 @@
 
 <body>
 
-	<jsp:include page="/Resources/Header.jsp" />
+  <%@ include file="/Resources/Header.jsp" %>
 
   <!-- =============================
        회원 정보 수정 폼
@@ -109,13 +123,12 @@
   <div class="edit-box">
     <div class="edit-title">회원 정보 수정</div>
 
-    <form action="${pageContext.request.contextPath}/Member/ChangeUserData.do" method="post" name="frm">
-
+    <form action="${pageContext.request.contextPath}/ChangeUserData.do" method="post" name="frm">
 
       <!-- 아이디 (수정 불가) -->
       <div class="mb-3">
         <label class="form-label">아이디</label>
-        <input type="text" name="userId" class="form-control" value=${mVo.userid} readonly />
+        <input type="text" name="userId" class="form-control" value="${mVo.userId}" readonly />
       </div>
 
       <!-- 새 비밀번호 -->
@@ -133,29 +146,23 @@
       <!-- 이름 -->
       <div class="mb-3">
         <label class="form-label">이름</label>
-        <input type="text" name="userName" class="form-control" value="${mVo.name}" />
+        <input type="text" name="userName" class="form-control" value="${mVo.userName}" />
       </div>
 
       <!-- 생년월일 -->
-			<div class="mb-3">
-	  <label class="form-label">생년월일</label>
-	  <div class="d-flex">
-	    <input type="text" name="birthYear" class="form-control me-2 only-number" placeholder="년도" maxlength="4" />
-	    <input type="text" name="birthMonth" class="form-control me-2 only-number" placeholder="월" maxlength="2" />
-	    <input type="text" name="birthDay" class="form-control only-number" placeholder="일" maxlength="2" />
-	  </div>
-	</div>
-	
-	<script>
-	  // 숫자만 입력 가능하게 (한글, 영문, 특수문자 제거)
-	  document.querySelectorAll('.only-number').forEach(input => {
-	    input.addEventListener('input', e => {
-	      e.target.value = e.target.value.replace(/[^0-9]/g, ''); // 숫자 아닌 건 전부 제거
-	    });
-	  });
-	</script>
-
-
+      <div class="mb-3">
+        <label class="form-label">생년월일</label>
+        <div class="d-flex">
+          <input type="text" name="birthYear" class="form-control me-2" placeholder="년도" />
+          <select name="birthMonth" class="form-select me-2" style="max-width: 100px;">
+            <option value="" selected>월</option>
+            <c:forEach var="i" begin="1" end="12">
+              <option value="${i}">${i}</option>
+            </c:forEach>
+          </select>
+          <input type="text" name="birthDay" class="form-control" placeholder="일" />
+        </div>
+      </div>
 
       <!-- 성별 (수정 불가) -->
       <div class="mb-3">
@@ -191,7 +198,6 @@
       <button type="submit" class="btn btn-edit">정보 수정하기</button>
     </form>
   </div>
-
 
   <!-- =============================
        Bootstrap JS

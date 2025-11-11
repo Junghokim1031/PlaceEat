@@ -7,7 +7,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
-@WebServlet("/Member/login.do")
+@WebServlet("/member/login.do")
 public class LoginServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
@@ -33,16 +33,16 @@ public class LoginServlet extends HttpServlet {
                 cookie.setMaxAge(0);
                 response.addCookie(cookie);
             }
-            response.sendRedirect(request.getContextPath() + "/Index.jsp");
+            response.sendRedirect(request.getContextPath() + "/member/Main.jsp");
         } else if (check == 0) {
             request.setAttribute("message", "비밀번호가 올바르지 않습니다.");
-            request.getRequestDispatcher("/Member/Login.jsp").forward(request, response);
+            request.getRequestDispatcher("/member/Login.jsp").forward(request, response);
         } else if (check == -1) {
             request.setAttribute("message", "존재하지 않는 아이디입니다.");
-            request.getRequestDispatcher("/Member/Login.jsp").forward(request, response);
+            request.getRequestDispatcher("/member/Login.jsp").forward(request, response);
         } else {
             request.setAttribute("message", "로그인 처리 중 오류가 발생했습니다.");
-            request.getRequestDispatcher("/Member/Login.jsp").forward(request, response);
+            request.getRequestDispatcher("/member/Login.jsp").forward(request, response);
         }
     }
 }

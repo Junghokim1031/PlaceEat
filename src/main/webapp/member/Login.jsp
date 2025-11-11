@@ -1,140 +1,75 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-
+<%@ page contentType="text/html; charset=UTF-8" %>
+<%@ page import="jakarta.servlet.http.Cookie" %>
+<%
+    // 쿠키에서 아이디 저장값 불러오기
+    String savedId = "";
+    Cookie[] cookies = request.getCookies();
+    if (cookies != null) {
+        for (Cookie c : cookies) {
+            if (c.getName().equals("userid")) {
+                savedId = c.getValue();
+                break;
+            }
+        }
+    }
+%>
 <!DOCTYPE html>
-<html lang="ko">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>로그인 | Place & Eat</title>
-
-  <!-- Bootstrap -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
-        crossorigin="anonymous">
-
-  <!-- JS -->
-  <script type="text/javascript" src="${pageContext.request.contextPath}/Resources/script/member.js"></script>
-
-  <!-- Header CSS -->
-  <link rel="stylesheet" href="${pageContext.request.contextPath}/Resources/CSS/Header.css">
-
-  <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      background-color: #ffffff;
-      padding-bottom: 100px;
-    }
-
-    .login-box {
-      max-width: 400px;
-      margin: 100px auto;
-      padding: 40px 30px;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      background: #fff;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .login-title {
-      font-size: 28px;
-      font-weight: bold;
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
-    .form-control {
-      border: none;
-      border-bottom: 1px solid #000;
-      border-radius: 0;
-      box-shadow: none;
-    }
-
-    .btn-login {
-      background-color: #888;
-      color: #fff;
-      width: 100%;
-      padding: 10px;
-      font-weight: bold;
-      margin-top: 20px;
-      transition: background-color 0.2s ease;
-    }
-
-    .btn-login:hover {
-      background-color: #666;
-    }
-
-    .signup-link {
-      text-align: center;
-      margin-top: 15px;
-      font-size: 14px;
-    }
-
-    .signup-link a {
-      text-decoration: none;
-      color: #999;
-    }
-
-    .signup-link a:hover {
-      text-decoration: underline;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>로그인</title>
+    <style>
+        body { font-family: '맑은 고딕', sans-serif; background-color: #f4f4f4; }
+        .login-box {
+            width: 360px; margin: 100px auto; padding: 30px;
+            background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .login-box h2 { text-align: center; margin-bottom: 25px; }
+        input[type=text], input[type=password] {
+            width: 95%; padding: 10px; margin: 8px 0;
+            border: 1px solid #ccc; border-radius: 5px;
+        }
+        button {
+            width: 100%; padding: 10px; margin-top: 10px;
+            background-color: #007bff; color: white; border: none; border-radius: 5px;
+        }
+        .options {
+            text-align: center; margin-top: 10px;
+        }
+        .options a { color: #007bff; text-decoration: none; margin: 0 5px; }
+        .options a:hover { text-decoration: underline; }
+        .message { color: red; text-align: center; margin-top: 10px; }
+        .remember {
+            text-align: left;
+            font-size: 14px;
+        }
+    </style>
 </head>
-
 <body>
+<div class="login-box">
+    <h2>로그인</h2>
 
-  <!-- Header include -->
-  <jsp:include page="/Resources/Header.jsp" />
+    <form action="login.do" method="post">
+        <input type="text" name="userid" placeholder="아이디" value="<%= savedId %>" required>
+        <input type="password" name="pwd" placeholder="비밀번호" required>
 
-  <!-- ============================= -->
-  <!-- 로그인 박스 -->
-  <!-- ============================= -->
-  <div class="login-box">
-    <div class="login-title">로그인</div>
+        <div class="remember">
+            <label>
+                <input type="checkbox" name="remember" value="on"
+                    <%= (savedId != null && !savedId.isEmpty()) ? "checked" : "" %>> 아이디 저장
+            </label>
+        </div>
 
-    <!-- 로그인 실패 메시지 -->
-    <c:if test="${not empty message}">
-      <div class="alert alert-danger text-center">${message}</div>
-    </c:if>
+        <button type="submit">로그인</button>
 
-    <!-- 로그인 폼 -->
-    <form action="${pageContext.request.contextPath}/Member/login.do" method="post" name="frm">
-      
-      <!-- 아이디 -->
-      <div class="mb-3">
-        <label for="userid" class="form-label">아이디</label>
-        <input type="text" id="userid" name="userid" class="form-control"
-               placeholder="아이디를 입력하세요"
-               value="${cookie.userid.value}" required>
-      </div>
+        <div class="message">${message}</div>
 
-      <!-- 비밀번호 -->
-      <div class="mb-3">
-        <label for="pwd" class="form-label">비밀번호</label>
-        <input type="password" id="pwd" name="pwd" class="form-control"
-               placeholder="비밀번호를 입력하세요" required>
-      </div>
-
-      <!-- 로그인 상태 유지 -->
-      <div class="form-check mb-3">
-        <input type="checkbox" class="form-check-input" id="remember" name="remember"
-               <c:if test="${not empty cookie.userid.value}">checked</c:if>>
-        <label class="form-check-label" for="remember">로그인 상태 유지</label>
-      </div>
-
-      <!-- 버튼 -->
-      <button type="submit" class="btn btn-login">로그인</button>
+        <div class="options">
+            <a href="FindId.jsp">아이디 찾기</a> |
+            <a href="ForgotPassword.jsp">비밀번호 찾기</a> |
+            <a href="Join.jsp">회원가입</a>
+        </div>
     </form>
-
-    <!-- 회원가입 -->
-    <div class="signup-link">
-      <a href="${pageContext.request.contextPath}/Member/SignUp.jsp">회원가입</a>
-    </div>
-  </div>
-
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-          crossorigin="anonymous"></script>
-
+</div>
 </body>
 </html>
