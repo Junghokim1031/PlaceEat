@@ -1,0 +1,198 @@
+/* ==========================================================================
+   목록 페이지 스타일
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   레이아웃 및 컨테이너 스타일
+   -------------------------------------------------------------------------- */
+
+#list {
+    background-color: #f8f9fa;
+    border-radius: 5px;
+}
+
+#list .row {
+    padding: 20px;
+}
+
+/* 가상 요소가 겹치지 않도록 클립 처리 */
+#list .col-12,
+#list .col-sm-6,
+#list .col-lg-4 {
+    overflow: hidden; 
+    padding: 15px;
+}
+
+
+/* --------------------------------------------------------------------------
+   카드 기본 스타일
+   https://codepen.io/celebstori/pen/NWzPXbR
+   -------------------------------------------------------------------------- */
+
+.card {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-height: 85% !important;
+    margin: 0 auto;
+    overflow: visible;
+    background-color: transparent !important;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.card .stretched-link {
+    z-index: 3;
+}
+
+
+/* --------------------------------------------------------------------------
+   카드 이미지 스타일
+   -------------------------------------------------------------------------- */
+
+img.card-img-top {
+    object-fit: cover;
+    width: 90%;
+    height: 200px;
+    border-radius: 5px 5px 0 0;
+    margin: 0 auto;
+    display: block;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* Smooth easing */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card:hover img.card-img-top {
+    width: 100%;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2); /* Enhance shadow */
+}
+
+
+/* --------------------------------------------------------------------------
+   카드 본문 스타일
+   -------------------------------------------------------------------------- */
+
+.card-body {
+    position: relative;
+    z-index: 2;
+    transition: all 0.3s ease;
+}
+
+.card-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+/* --------------------------------------------------------------------------
+   카드 호버 효과 - 가상 요소
+   -------------------------------------------------------------------------- */
+
+.card::before,
+.card::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: 50%;
+    width: 95%;
+    border-radius: 5px;
+    transform: translateY(-50%);
+    transition: all 0.4s;
+}
+
+/* 그라디언트 배경 레이어 */
+.card::before {
+    left: 0%;
+    height: 130%;
+    background: linear-gradient(to right, #0575E6, #94e9f2);
+}
+
+/* 반투명 블러 레이어 */
+.card::after {
+    left: -10%;
+    height: 120%;
+    background: #ffffff56;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.164);
+}
+
+
+/* --------------------------------------------------------------------------
+   카드 호버 상태
+   -------------------------------------------------------------------------- */
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.card:hover::before {
+    transform: translateY(-50%) translateX(-2.5%);
+}
+
+.card:hover::after {
+    transform: translateY(-50%) translateX(15%);
+}
+
+.card:hover .card-body {
+    background-color: rgba(255, 255, 255, 0.95);
+}
+
+/* 카드 콘텐츠가 가상 요소 위에 표시되도록 설정 */
+.card-img-top,
+.card-body {
+    position: relative;
+    z-index: 2;
+}
+
+
+/* --------------------------------------------------------------------------
+   검색 박스 스타일
+   -------------------------------------------------------------------------- */
+
+.search-box {
+    width: 100%;
+    margin-top: 20px;
+    margin-bottom: 50px;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+/* Poppins 폰트 임포트 */
+@import url("https://fonts.googleapis.com/css2?family=Poppins&display=swap");
+
+/* --------------------------------------------------------------------------
+   
+   -------------------------------------------------------------------------- */
+.btn{
+	color:white;
+	background-color: #021B79;
+}
+
+.btn:hover{
+	color:white;
+}
+
+
+/* --------------------------------------------------------------------------
+   지역 태그 - 애니메이션 호버 효과
+   해시태그 - 애니메이션 호버 효과
+   -------------------------------------------------------------------------- */
+#locationTags .locationTag,
+#hashtagTags .hashtagTag {
+    /*font-family: "Poppins", sans-serif;*/
+    background: #fff !important;
+    color: black !important;
+    border: 1 solid black;
+    border-radius: 5px;
+    position: relative;
+    padding: 0.25em 0.5em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* 활성화 상태 스타일 */
+#locationTags .locationTag.active,
+#hashtagTags .hashtagTag.active {
+    background: linear-gradient(to right, #0575E6, #5a90bf) !important;
+    color: white !important;
+}
