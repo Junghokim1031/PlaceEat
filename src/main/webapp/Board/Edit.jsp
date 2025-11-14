@@ -26,7 +26,7 @@
 		console.log("Edit.jsp 로드 완료");
 		
 		// 기존 주소가 있으면 검증된 것으로 간주
-		let addressVerified = ${not empty dto.latitude ? 'true' : 'false'};
+		let addressVerified = ${not empty board.latitude ? 'true' : 'false'};
 		
 		function validateForm(form){
 		  if(form.title.value == ""){
@@ -85,8 +85,8 @@
 		
 		// 페이지 로드 시 기존 지도 표시
 		window.addEventListener('DOMContentLoaded', function() {
-		  <c:if test="${not empty dto.latitude and not empty dto.longitude}">
-		    var coords = new kakao.maps.LatLng(${dto.latitude}, ${dto.longitude});
+		  <c:if test="${not empty board.latitude and not empty board.longitude}">
+		    var coords = new kakao.maps.LatLng(${board.latitude}, ${board.longitude});
 		    var map = new kakao.maps.Map(document.getElementById('map'), {
 		      center: coords,
 		      level: 3
@@ -98,9 +98,6 @@
 </head>
 <body class="container-fluid  px-0 py-0 mx-0 my-0">
 	<jsp:include page="/Resources/Header.jsp" />
-	<c:if test="${not empty locationName}">
-	    <p>Location count: ${locationName.size()}</p>
-	</c:if>
 	<c:if test="${empty locationName}">
 	    <p style="color:red;">locationName is empty or null!</p>
 	</c:if>
@@ -110,8 +107,11 @@
 		action="../Board/Edit.do" onsubmit="return validateForm(this);" class="w-75 px-3 border border-dark">
 	
 			<!--  Hidden: 수정할 게시글 ID  -->
-			<input type="hidden" name="boardId" value="${dto.boardId}">
-			
+			<input type="hidden" name="boardId" value="${board.boardId}">
+			<input type="hidden" name="existingImgO" value="${board.imgOfilename}">
+			<input type="hidden" name="existingImgS" value="${board.imgSfilename}">
+			<input type="hidden" name="mode" value="update">
+
 			<h4 class="text-center my-3"><b>게시글 수정</b></h4>
 			
 			<div class="container mx-auto mb-3" style="max-width: 800px;">
@@ -120,7 +120,7 @@
 					<select name="locationSelect" class="form-select w-25">
 						<option value="">선택하세요</option>
 						<c:forEach items="${locationName}" var="location">
-							<option value="${location}" ${dto.locationName eq location ? 'selected' : ''}>
+							<option value="${location}" ${board.locationName eq location ? 'selected' : ''}>
 								${location}
 							</option>
 						</c:forEach>
@@ -130,7 +130,7 @@
 					<select name="hashtagSelect" class="form-select w-25">
 						<option value="">선택하세요</option>
 						<c:forEach items="${hashtagName}" var="hashtag">
-							<option value="${hashtag}" ${dto.hashtagName eq hashtag ? 'selected' : ''}>
+							<option value="${hashtag}" ${board.hashtagName eq hashtag ? 'selected' : ''}>
 								${hashtag}
 							</option>
 						</c:forEach>
@@ -139,7 +139,7 @@
 				    <!-- 제목 (기존 값 채우기) -->
 					<div class="col">
 						<input type="text" name="title" class="form-control" 
-							value="${dto.title}">
+							value="${board.title}">
 					</div>
 				</div>
 			</div>
@@ -147,9 +147,9 @@
 			<div>
 				<h4>사진등록</h4>
 				<!-- 기존 이미지 표시 -->
-				<c:if test="${not empty dto.imgSfilename}">
-					<p class="text-muted">현재 이미지: ${dto.imgOfilemame}</p>
-					<img src="${pageContext.request.contextPath}/Resources/Img/${dto.imgSfilemame}" 
+				<c:if test="${not empty board.imgSfilename}">
+					<p class="text-muted">현재 이미지: ${board.imgOfilename}</p>
+					<img src="${pageContext.request.contextPath}/Uploads/${board.imgSfilename}"
 					   style="max-width: 200px; height: auto;" class="mb-2">
 					<p class="text-muted small">새 파일을 선택하면 기존 이미지가 교체됩니다.</p>
 				</c:if>
@@ -162,7 +162,7 @@
 				<h4>상세정보 등록</h4>
 				<!-- 기존 내용 채우기 -->
 				<textarea name="content" class="form-control w-100 my-3" rows="10" >
-					${dto.content}
+					${board.content}
 				</textarea>
 			</div>
 		
@@ -177,8 +177,8 @@
 				</div>
 				
 				<!-- 기존 좌표 채우기 -->
-				<input type="hidden" name="latitude" id="latitude" value="${dto.latitude}">
-				<input type="hidden" name="longitude" id="longitude" value="${dto.longitude}">
+				<input type="hidden" name="latitude" id="latitude" value="${board.latitude}">
+				<input type="hidden" name="longitude" id="longitude" value="${board.longitude}">
 				
 				<div id="map" class="w-100 mt-3 border border-dark" style="height:300px;"></div>
 			</div>
@@ -187,12 +187,9 @@
 			<div class="my-5">
 				<h4>부가 정보 등록</h4>
 			
-				<c:forEach begin="0" end="4" var="i">
-					<input type="text" name="details[]" class="form-control w-100 mb-2" 
-					       placeholder="관련정보를 작성해 주세요. (예. 운영시간)"
-					       value="${detailsArray[i]}">
-					<br>
-				</c:forEach>
+				<input type="text" name="details" class="form-control bordered-input mb-2" 
+                           placeholder="운영 시간, 입장료, 주차 정보, 연락처 등을 자유롭게 작성하세요" value="${board.details}" >
+                           
 			</div>
 		
 			<!-- 맛집 (기존 restaurants 채우기) -->
@@ -201,7 +198,7 @@
 			
 				<!-- 기존 맛집 표시 -->
 				<button type="button" class="btn btn-primary w-25 mb-4" onclick="addRestaurant()">맛집 추가</button>
-				<c:forEach items="${restaurantLists}" var="rest">
+				<c:forEach items="${restaurants}" var="rest">
 					<div class="restaurant-entry mb-2">
 						<div class="d-flex gap-2 align-items-center">
 							<input type="text" name="restName[]" class="form-control w-25" 

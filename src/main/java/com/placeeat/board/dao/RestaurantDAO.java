@@ -3,7 +3,7 @@ package com.placeeat.board.dao;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import com.placeeat.utils.DBConnPool;
+import com.placeeat.util.DBConnPool;
 
 public class RestaurantDAO extends DBConnPool {
 
@@ -46,5 +46,37 @@ public class RestaurantDAO extends DBConnPool {
             e.printStackTrace();
         }
         return list;
+    }
+    
+    /**
+     * 게시글 수정 시 기존 맛집 삭제 후 새로 등록
+     */
+    public void updateRestaurants(int boardId, List<RestaurantDTO> newList) {
+        try {
+            // 기존 맛집 삭제
+            String deleteSql = "DELETE FROM restaurant_table WHERE board_id = ?";
+            psmt = con.prepareStatement(deleteSql);
+            psmt.setInt(1, boardId);
+            psmt.executeUpdate();
+            psmt.close();
+
+            // 새 맛집 등록
+            String insertSql = "INSERT INTO restaurant_table "
+                             + "(rest_id, rest_name, rest_adress, created_at, board_id) "
+                             + "VALUES (restaurant_seq.NEXTVAL, ?, ?, SYSDATE, ?)";
+            psmt = con.prepareStatement(insertSql);
+
+            for (RestaurantDTO dto : newList) {
+                psmt.setString(1, dto.getRestName());
+                psmt.setString(2, dto.getRestAddress());
+                psmt.setInt(3, boardId);
+                psmt.addBatch();
+            }
+
+            psmt.executeBatch();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

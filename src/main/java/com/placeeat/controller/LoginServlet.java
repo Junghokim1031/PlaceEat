@@ -7,8 +7,17 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
-@WebServlet("/Member/login.do")
+@WebServlet("/Member/Login.do")
 public class LoginServlet extends HttpServlet {
+	
+	
+	@Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        request.getRequestDispatcher("/Member/Login.jsp").forward(request, response);
+    }
+	
+	
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
 
@@ -33,7 +42,7 @@ public class LoginServlet extends HttpServlet {
                 cookie.setMaxAge(0);
                 response.addCookie(cookie);
             }
-            response.sendRedirect(request.getContextPath() + "/Index.jsp");
+            response.sendRedirect(request.getContextPath() + "/Board/Main.do");
         } else if (check == 0) {
             request.setAttribute("message", "비밀번호가 올바르지 않습니다.");
             request.getRequestDispatcher("/Member/Login.jsp").forward(request, response);

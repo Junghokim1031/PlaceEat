@@ -7,6 +7,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import com.placeeat.dao.MemberVO;
+
 
 
 @WebServlet("/likeToggle.do")
@@ -24,12 +26,13 @@ public class LikeController extends HttpServlet {
         // (1) 사용자 ID 가져오기
         // ------------------------------
         // ⭐ 실제 로그인 세션에서 아이디 가져오는 것을 권장
-        String userId = (String) req.getSession().getAttribute("userId");
-        if (userId == null) {
-            String jsonError = "{\"success\":false,\"message\":\"로그인이 필요합니다.\"}";
-            resp.getWriter().write(jsonError);
+        MemberVO loginUser = (MemberVO) req.getSession().getAttribute("loginUser");
+        if (loginUser == null) {
+            resp.getWriter().write("{\"success\":false,\"message\":\"로그인이 필요합니다.\"}");
             return;
         }
+        String userId = loginUser.getUserid();
+
 
         // ------------------------------
         // (2) 게시글 번호 파라미터 처리
@@ -60,16 +63,16 @@ public class LikeController extends HttpServlet {
                 success = dao.addLike(boardId, userId) > 0;
             }
 
-            // ------------------------------
             // (4) 좋아요 수 계산 (COUNT(*)로 재계산)
-            // ------------------------------
             int newLikeCount = dao.getLikeCount(boardId);
 
-            // ------------------------------
-            // (5) 결과 JSON으로 응답
-            // ------------------------------
-            String json = "{\"success\":" + success + ",\"newLikeCount\":" + newLikeCount + "}";
+            // Compute the actual new state after toggle
+            boolean likedNow = success ? !alreadyLiked : alreadyLiked;
+
+            // (5) 결과 JSON으로 응답 (include liked)
+            String json = "{\"success\":" + success + ",\"liked\":" + likedNow + ",\"newLikeCount\":" + newLikeCount + "}";
             resp.getWriter().write(json);
+
 
         } catch (Exception e) {
             e.printStackTrace();

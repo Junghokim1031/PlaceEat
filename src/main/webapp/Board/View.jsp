@@ -5,7 +5,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>PLACE EAT 게시판</title>
+<title>${board.title}</title>
 
 <!-- Bootstrap CSS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -22,15 +22,12 @@
 <!-- Kakao Maps API -->
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=54ad5c72f0aaa1f9d3ac1211aad9a839&libraries=services"></script>
 
-<!-- View.js - Your external JavaScript -->
+<!-- ✅ FIXED: Correct path to View.js -->
 <script src="${pageContext.request.contextPath}/Resources/Script/View.js"></script>
 
 </head>
 <body class="container-fluid p-0 m-0">
 <jsp:include page="/Resources/Header.jsp" />
-
-
-
 
 <!-- 게시글 데이터 확인 -->
 <c:if test="${empty board or board.boardId eq 0}">
@@ -86,25 +83,15 @@
 
         <!-- Main Content Section -->
         <div id="content">
-            <h3>📖 상세정보</h3>
+            <h3>상세정보</h3>
             <div id="main-content">${board.content}</div>
             
             <!-- Map -->
             <div id="staticMap"></div>
             
-            <!-- Additional Details (handle both string and array) -->
-            <c:choose>
-                <c:when test="${not empty board.details and fn:contains(board.details, ',')}">
-                    <!-- If details contains comma, split and display -->
-                    <c:forEach items="${fn:split(board.details, ',')}" var="detail">
-                        <div class="detail">
-                            ${detail}
-                            <br>
-                        </div>
-                    </c:forEach>
-                </c:when>
+            <!-- Additional Details -->
+            <c:choose>              
                 <c:when test="${not empty board.details}">
-                    <!-- Single string details -->
                     <div class="detail">
                         <b>부가정보:</b><br>
                         ${board.details}
@@ -114,90 +101,86 @@
 
             <!-- Location & Hashtags -->
             <div class="detail">
-                <b>🗺️ 위치:</b> ${board.locationName}<br>
+                <b>위치:</b> ${board.locationName}<br>
                 <c:if test="${not empty board.hashtagName}">
-                    <b>🏷️ 해시태그:</b> #${board.hashtagName}
+                    <b>해시태그:</b> #${board.hashtagName}
                 </c:if>
             </div>
             
-            <!-- Like Button -->
-            <div class="text-center mt-4 mb-3">
-                <button id="likeBtn" type="button" 
-                        class="btn ${userLiked ? 'btn-danger' : 'btn-outline-danger'}" 
-                        data-user-id="${sessionScope.userId}" 
-                        data-board-id="${board.boardId}" 
-                        data-liked="${userLiked}"> 
-                    ❤️ 좋아요 <span id="likeCount">${likeCount}</span>
-                </button>
-            </div>
+            <!-- ✅ FIXED: Like Button with correct session attribute -->
+            <div class="d-flex align-items-center justify-content-between py-3 px-2 border rounded bg-white my-3">
+				  <!-- Left: exact text -->
+				  <div class="pe-like-copy">
+				    <div class="fw-bold mb-1">해당 여행지가 마음에 드시나요?</div>
+				    <div class="text-muted small">평가를 해주시면 개인화 추천 시 활용하여 최적의 여행지를 추천해 드리겠습니다.</div>
+				  </div>
+				
+				  <!-- Right: large pill button -->
+				  <c:choose>
+				    <c:when test="${not empty sessionScope.loginUser}">
+				      <button id="likeBtn" type="button"
+						        class="pe-like btn border-0 px-4 py-3 ms-3"
+						        data-user-id="${sessionScope.loginUser.userid}"
+						        data-board-id="${board.boardId}"
+						        data-liked="${userLiked ? 'true' : 'false'}"
+						        data-context-path="${pageContext.request.contextPath}">
+						  <span class="pe-like-face me-2" aria-hidden="true">😆</span>
+						  <span class="pe-like-text">좋아요!</span>
+						  <span class="badge ms-2" id="likeCount">${likeCount}</span>
+						</button>
+				    </c:when>
+				    <c:otherwise>
+				      <button type="button"
+				              class="pe-like btn border-0 px-4 py-3 ms-3"
+				              onclick="alert('로그인이 필요합니다.');">
+				        <span class="pe-like-face me-2" aria-hidden="true">😆</span>
+				        <span class="pe-like-text">좋아요!</span>
+				        <span class="badge ms-2" id="likeCount">${likeCount}</span>
+				      </button>
+				    </c:otherwise>
+				  </c:choose>
+				</div>
+
             
-            <!-- Action Buttons (Edit/Delete for post owner) -->
+            <!-- ✅ FIXED: Action Buttons with correct session check -->
             <div class="text-center mt-3">
-                
-                <c:if test="${board.userId eq sessionScope.userId}">
-                    <button type="button" 
-                            onclick="location.href='${pageContext.request.contextPath}/Board/Edit.do?mode=edit&boardId=${board.boardId}';"
-                            class="btn btn-warning ms-2">
-                        수정하기
-                    </button>
+                <a href="${pageContext.request.contextPath}/Board/List.do" class="btn btn-secondary">목록으로</a>
+                <c:if test="${not empty sessionScope.loginUser and board.userId eq sessionScope.loginUser.userid}">
+                    <button type="button" onclick="location.href='${pageContext.request.contextPath}/Board/Edit.do?mode=edit&boardId=${board.boardId}';"
+                            class="btn btn-warning ms-2"> 수정하기 </button>
                     
-                    <button type="button" 
-                            onclick="if(confirm('정말 삭제하시겠습니까?')) location.href='${pageContext.request.contextPath}/Board/Edit.do?mode=delete&boardId=${board.boardId}';"
-                            class="btn btn-danger ms-2">
-                        삭제하기
-                    </button>
+                    <form id="deleteForm" method="post" action="${pageContext.request.contextPath}/Board/Edit.do" style="display:inline;">
+					    <input type="hidden" name="mode" value="delete">
+					    <input type="hidden" name="boardId" value="${board.boardId}">
+					    <button type="button" class="btn btn-danger ms-2"
+					            onclick="if(confirm('정말 삭제하시겠습니까?')) document.getElementById('deleteForm').submit();">
+					        삭제하기
+					    </button>
+					</form>
                 </c:if>
             </div>
         </div>
 
-        <!-- Nearby Restaurants Section 
-        <div class="section-header">🍽️ 근처 맛집</div>
-        <div id="restaurant" class="row mx-auto">
-            <c:choose>
-                <c:when test="${empty restaurants}">
-                    <p class="text-muted text-center">등록된 맛집이 없습니다.</p>
-                </c:when>
-                <c:otherwise>
-                    <c:forEach var="r" items="${restaurants}">
-                        <div class="col-sm-6 col-md-4 col-lg-3 mb-3">
-                            <div class="border rounded p-3">
-                                <b>${r.restName}</b><br>
-                                <small class="text-muted">주소: ${r.restAddress}</small><br>
-                                <small class="text-muted">등록일: ${r.createdAt}</small>
-                            </div>
-                        </div>
-                    </c:forEach>
-                </c:otherwise>
-            </c:choose>
-        </div>-->
+        <!-- Restaurants Section -->
+        <div class="info-box mt-4">
+            <h4>🍽️ 추천 맛집</h4>
         
-        <!-- 맛집 목록 -->
-      <div class="info-box mt-4">
-          <h4>🍽️ 추천 맛집</h4>
-      
-          <c:if test="${empty restaurants}">
-              <p class="text-muted">등록된 맛집이 없습니다.</p>
-          </c:if>
-      
-          <c:forEach var="r" items="${restaurants}">
-              <div class="border rounded p-2 mb-2 d-flex justify-content-between align-items-center">
-                  <!-- 이름 -->
-                  <span><b>${r.restName}</b></span>
-      
-                  <!-- 바로가기 (주소 링크, 새 창에서 열기) -->
-                  <span>
-                      <a href="${r.restAddress}" 
-                         target="_blank" 
-                         class="text-decoration-none">
-                          바로가기
-                      </a>
-                  </span>
-      
-                  <!-- 등록일 -->
-                  <span class="text-muted">${r.createdAt}</span>
-              </div>
-          </c:forEach>
-      </div>
+            <c:if test="${empty restaurants}">
+                <p class="text-muted">등록된 맛집이 없습니다.</p>
+            </c:if>
+        
+            <c:forEach var="r" items="${restaurants}">
+                <div class="border rounded p-2 mb-2 d-flex justify-content-between align-items-center">
+                    <span><b>${r.restName}</b></span>
+                    <span>
+                        <a href="${r.restAddress}" target="_blank" class="text-decoration-none">
+                            바로가기
+                        </a>
+                    </span>
+                    <span class="text-muted">${r.createdAt}</span>
+                </div>
+            </c:forEach>
+        </div>
 
         <!-- Comments Section -->
         <table id="replyTable" class="w-100 mt-5">
@@ -220,8 +203,8 @@
                                 <br>
                                 ${cmt.content}
                                 
-                                <!-- 댓글 작성자만 삭제 가능 -->
-                                <c:if test="${cmt.userId eq sessionScope.userId}">
+                                
+                                <c:if test="${not empty sessionScope.loginUser and cmt.userId eq sessionScope.loginUser.userid}">
                                     <form action="${pageContext.request.contextPath}/Board/Delete.do" 
                                           method="post" style="display:inline;" class="float-end">
                                         <input type="hidden" name="commentId" value="${cmt.commentId}">
@@ -246,29 +229,43 @@
             </c:if>
         </table>
 
-        <!-- Comment Form -->
-        <form id="replyForm" method="post" action="${pageContext.request.contextPath}/Board/Insert.do">
-            <input type="hidden" name="boardId" value="${board.boardId}">
-            <textarea id="content" name="content" rows="4" 
-                      class="form-control" placeholder="댓글을 입력하세요" required></textarea>
-            <button type="submit" class="btn float-end mt-3">댓글등록</button>
-        </form>
+        
+        <!-- Comment Form - Only for logged-in users -->
+		<c:choose>
+		    <c:when test="${not empty sessionScope.loginUser}">
+		        <!-- Logged-in users: Show comment form -->
+		        <form id="replyForm" method="post" action="${pageContext.request.contextPath}/Board/Insert.do">
+		            <input type="hidden" name="boardId" value="${board.boardId}">
+		            <textarea id="replyContent" name="replyContent" rows="4" 
+		                      class="form-control" placeholder="댓글을 입력하세요" required></textarea>
+		            <button type="submit" class="btn float-end mt-3">댓글등록</button>
+		        </form>
+		    </c:when>
+		    <c:otherwise>
+		        <!-- Guests: Show login prompt -->
+		        <div class="alert alert-info text-center">
+		            <p>댓글을 작성하려면 로그인이 필요합니다.</p>
+		            <a href="${pageContext.request.contextPath}/Member/Login.jsp" class="btn btn-primary">
+		                로그인하기
+		            </a>
+		        </div>
+		    </c:otherwise>
+		</c:choose>
+
 
         <!-- Decorative Bottom Border -->
         <div class="border-decoration-bottom"></div>
     </div>
 </c:if>
 
-<!-- Initialize View Page - Bridge JSP data to JavaScript -->
+<!-- ✅ FIXED: Initialize View Page with correct session attribute -->
 <script>
-    // Prepare configuration object with JSP data
     var viewPageConfig = {
         <c:choose>
             <c:when test="${not empty board and board.boardId ne 0}">
                 latitude: ${board.latitude != null ? board.latitude : 0},
                 longitude: ${board.longitude != null ? board.longitude : 0},
                 boardId: ${board.boardId},
-                userId: '<c:out value="${sessionScope.userId}"/>',
                 userLiked: ${userLiked != null ? userLiked : false},
                 likeCount: ${likeCount != null ? likeCount : 0},
                 contextPath: '${pageContext.request.contextPath}'
@@ -287,7 +284,6 @@
     
     console.log('viewPageConfig created:', viewPageConfig);
     
-    // Initialize the view page when DOM is ready
     document.addEventListener('DOMContentLoaded', function() {
         console.log('DOM loaded - initializing view page...');
         
@@ -296,11 +292,10 @@
             console.log("✅ View.jsp initialized successfully");
         } else {
             console.error("❌ ERROR: initializeViewPage function not found in View.js");
-            console.error("Check if View.js is loaded correctly");
+            console.error("Check if View.js is loaded at: Resources/Script/View.js");
         }
     });
 </script>
-
 
 <jsp:include page="/Resources/Footer.jsp" />
 

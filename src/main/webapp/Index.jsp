@@ -16,7 +16,7 @@
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
         crossorigin="anonymous" />
   <link rel="stylesheet" href="${pageContext.request.contextPath}/Resources/CSS/Header.css">
-
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/Resources/CSS/Footer.css">
   <style>
     body {
       font-family: 'Arial', sans-serif;
@@ -195,12 +195,14 @@
   <!-- =============================
        메인 캐러셀 (Main Carousel)
   ============================== -->
-  <c:if test="${not empty mainArticles}">
+  <c:if test="${not empty topViewedBoards}">
     <div id="travel-carousel" class="carousel slide" data-bs-ride="carousel">
       <div class="carousel-inner">
-        <c:forEach var="article" items="${mainArticles}" varStatus="status">
-          <div class="carousel-item ${status.first ? 'active' : ''}">
-            <img src="${pageContext.request.contextPath}/resources/img/${article.img_sfilename}" alt="${article.title}">
+      	<c:forEach var="article" items="${topViewedBoards}" varStatus="status">
+        <div class="carousel-item ${status.first ? 'active' : ''}"
+             onclick="location.href='${pageContext.request.contextPath}/Board/View.do?boardId=${article.boardId}'"
+             style="cursor:pointer;">
+           <img src="${pageContext.request.contextPath}/Uploads/${article.imgSfilename}">
             <div class="carousel-caption">
               <h2>${article.title}</h2>
               <p>${article.details}</p>
@@ -210,7 +212,7 @@
       </div>
 
       <div class="carousel-indicators">
-        <c:forEach var="i" begin="0" end="${fn:length(mainArticles)-1}">
+        <c:forEach var="i" begin="0" end="${fn:length(topViewedBoards)-1}">
           <button type="button" data-bs-target="#travel-carousel" data-bs-slide-to="${i}"
                   class="${i == 0 ? 'active' : ''}"></button>
         </c:forEach>
@@ -218,7 +220,7 @@
     </div>
   </c:if>
 
-  <c:if test="${empty mainArticles}">
+  <c:if test="${empty topViewedBoards}">
     <div class="text-center text-muted py-5">등록된 메인 기사가 없습니다.</div>
   </c:if>
 
@@ -230,13 +232,13 @@
   <section class="container my-5">
     <h3 class="fw-bold mb-4">여행콕콕</h3>
 
-    <c:if test="${not empty recommendArticles}">
+    <c:if test="${not empty topLikedBoards}">
       <div class="row g-4">
-        <c:forEach var="article" items="${recommendArticles}">
+        <c:forEach var="article" items="${topLikedBoards}">
           <div class="col-md-3">
             <div class="card travel-card"
-                 onclick="location.href='${pageContext.request.contextPath}/board/view.do?board_id=${article.board_id}'">
-              <img src="${pageContext.request.contextPath}/resources/img/${article.img_sfilename}" class="card-img-top" alt="${article.title}">
+                 onclick="location.href='${pageContext.request.contextPath}/Board/View.do?boardId=${article.boardId}'">
+              <img src="${pageContext.request.contextPath}/Uploads/${article.imgSfilename}" class="card-img-top" alt="${article.title}">
               <div class="card-body">
                 <h6 class="card-title fw-bold">${article.title}</h6>
                 <p class="card-text small text-muted">${article.details}</p>
@@ -247,7 +249,7 @@
       </div>
     </c:if>
 
-    <c:if test="${empty recommendArticles}">
+    <c:if test="${empty topLikedBoards}">
       <div class="text-center text-muted my-5">추천 기사가 없습니다.</div>
     </c:if>
   </section>
@@ -260,27 +262,29 @@
   <section class="container my-5">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h3 class="fw-bold mb-0">최신 기사</h3>
-      <a href="${pageContext.request.contextPath}/board/list.do" class="text-decoration-none text-primary">더보기</a>
+      <a href="${pageContext.request.contextPath}/Board/List.do" class="text-decoration-none text-primary">더보기</a>
     </div>
 
-    <c:if test="${not empty latestArticles}">
+    <c:if test="${not empty latestBoards}">
       <div class="latest-list">
-        <c:forEach var="article" items="${latestArticles}">
-          <a href="${pageContext.request.contextPath}/board/view.do?board_id=${article.board_id}">
+        <c:forEach var="article" items="${latestBoards}">
+          <a href="${pageContext.request.contextPath}/Board/View.do?boardId=${article.boardId}">
             <span class="title">${article.title}</span>
             <span class="meta">
-              <i class="fa-regular fa-eye"></i> ${article.viewcount} |
-              <i class="fa-regular fa-calendar"></i> ${article.created_at}
+              <i class="fa-regular fa-eye"></i> ${article.viewCount} |
+              <i class="fa-regular fa-calendar"></i> ${article.createdAt}
             </span>
           </a>
         </c:forEach>
       </div>
     </c:if>
 
-    <c:if test="${empty latestArticles}">
+    <c:if test="${empty latestBoards}">
       <div class="text-center text-muted my-5">최근 등록된 기사가 없습니다.</div>
     </c:if>
   </section>
+  
+  <jsp:include page="/Resources/Footer.jsp" />
 
   <!-- =============================
        JS / Bootstrap Script

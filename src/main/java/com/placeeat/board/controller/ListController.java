@@ -7,13 +7,15 @@ import java.util.Map;
 
 import com.placeeat.board.dao.BoardDAO;
 import com.placeeat.board.dao.BoardDTO;
-import com.placeeat.utils.BoardPage;
+import com.placeeat.dao.MemberVO;
+import com.placeeat.util.BoardPage;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 /**
  * Servlet implementation class ListController
@@ -85,7 +87,14 @@ public class ListController extends HttpServlet {
             map.put("end", end);
             /* 페이지 처리 end */
  
-            
+            //멤버 등급 조회 
+            HttpSession session = req.getSession();
+   		 	MemberVO loginUser = (MemberVO) session.getAttribute("loginUser");
+   		 	if(loginUser != null) {
+   		 		String grade = loginUser.getGrade();   
+   	            req.setAttribute("grade", grade);		 		
+   		 	}
+   		 	
             // 게시물 목록 조회
             List<BoardDTO> boardLists = dao.selectListPage(map);
             
@@ -97,7 +106,7 @@ public class ListController extends HttpServlet {
 
             // 뷰에 전달할 매개변수 추가
             String pagingImg = BoardPage.pagingStr(totalCount, pageSize,
-                    blockPage, pageNum, req.getContextPath() + "/Board/List.do");
+                    blockPage, pageNum, req.getContextPath() + "/Board/List.do","pageNum");
             map.put("pagingImg", pagingImg);
             map.put("totalCount", totalCount);
             map.put("pageSize", pageSize);
@@ -108,7 +117,6 @@ public class ListController extends HttpServlet {
             req.setAttribute("map", map);
             req.setAttribute("locationName", locationList);
             req.setAttribute("hashtagName", hashtagList);
-            
             dao.close();
             
             req.getRequestDispatcher("/Board/List.jsp").forward(req, resp);

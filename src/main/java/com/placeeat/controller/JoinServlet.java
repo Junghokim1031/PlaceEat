@@ -9,6 +9,14 @@ import jakarta.servlet.http.*;
 
 @WebServlet("/Member/join.do")
 public class JoinServlet extends HttpServlet {
+	
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        request.getRequestDispatcher("/Member/SignUp.jsp").forward(request, response);
+    }
+    
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
 
@@ -58,7 +66,7 @@ public class JoinServlet extends HttpServlet {
 
         int result = dao.insertMember(mVo);
         if (result == 1) {
-            response.sendRedirect(request.getContextPath() + "/Member/Login.jsp");
+            response.sendRedirect(request.getContextPath() + "/Member/Login.do");
         } else {
             request.setAttribute("message", "회원가입 중 오류가 발생했습니다.");
             request.getRequestDispatcher("/Member/SignUp.jsp").forward(request, response);

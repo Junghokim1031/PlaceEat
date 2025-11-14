@@ -124,19 +124,22 @@ public class MemberDAO {
         return userId;
     }
 
-    // find user by userid+name+email : 기존 시그니처 유지 (문자열 반환)
-    public String findUserByIdNameEmail(String userid, String name, String email) {
+ // find user by userid + name + email + birth
+    public String findUserByIdNameEmail(String userid, String name, String email, String birth) {
         String resultId = null;
-        String sql = "select user_id from user_table where user_id=? and user_name=? and email=?";
-        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        String sql = "select user_id from user_table where user_id=? and user_name=? and email=? and birth_date=?";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, userid);
             pstmt.setString(2, name);
             pstmt.setString(3, email);
+            pstmt.setString(4, birth);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) resultId = rs.getString("user_id");
         } catch (Exception e) { e.printStackTrace(); }
         return resultId;
     }
+
 
     // MemberVO 반환형도 제공 (호환용)
     public MemberVO findMemberByIdNameEmail(String userid, String name, String email) {

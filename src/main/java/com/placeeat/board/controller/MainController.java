@@ -40,7 +40,7 @@ public class MainController extends HttpServlet {
 	        dao.close();
 
 	        // main.jsp로 포워딩
-	        req.getRequestDispatcher("/Board/Main.jsp").forward(req, resp);
+	        req.getRequestDispatcher("/Index.jsp").forward(req, resp);
 	}
 
 	/**

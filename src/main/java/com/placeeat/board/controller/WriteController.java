@@ -6,8 +6,9 @@ import com.placeeat.board.dao.BoardDAO;
 import com.placeeat.board.dao.BoardDTO;
 import com.placeeat.board.dao.RestaurantDAO;
 import com.placeeat.board.dao.RestaurantDTO;
-import com.placeeat.utils.FileUtil;
-import com.placeeat.utils.JSFunction;
+import com.placeeat.dao.MemberVO;
+import com.placeeat.util.FileUtil;
+import com.placeeat.util.JSFunction;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -15,6 +16,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 
 @WebServlet("/Board/Write.do")
@@ -45,18 +47,20 @@ public class WriteController extends HttpServlet {
 			return;
 		}
 
-		/* 실제 로그인 사용 시
-        String userId = (String) req.getSession().getAttribute("userId");
-        if (userId == null) {
-            resp.sendRedirect(req.getContextPath() + "/Login.do");
-            return;
-        }*/
+		/* 실제 로그인 사용 시*/
+		 HttpSession session = req.getSession();
+		    MemberVO loginUser = (MemberVO) session.getAttribute("loginUser");
+
+		    if (loginUser == null) {
+		        JSFunction.alertLocation(resp, "로그인 후 이용해주세요.", "../Member/Login.jsp");
+		        return;
+		    }
 		// 게시글 DTO 생성
 		BoardDTO dto = new BoardDTO();
 		dto.setTitle(req.getParameter("title"));
 		dto.setContent(req.getParameter("content"));
 		dto.setDetails(req.getParameter("details"));
-		dto.setUserId(req.getParameter("userId")); // 테스트용
+		dto.setUserId(loginUser.getUserid());
 		dto.setHashtagName(req.getParameter("hashtag_name"));
 		dto.setLocationName(req.getParameter("location_name"));
 

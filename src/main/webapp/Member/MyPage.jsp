@@ -16,14 +16,35 @@
 
   <!-- 공통 헤더 CSS -->
   <link rel="stylesheet" href="${pageContext.request.contextPath}/Resources/CSS/Header.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/Resources/CSS/Footer.css">
 
   <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      background-color: #ffffff;
-      padding-top: 100px;
-      padding-bottom: 100px;
-    }
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  font-family: 'Arial', sans-serif;
+  background-color: #ffffff;
+  min-height: 100vh;
+  padding-top: 100px;
+  padding-bottom: 0; 
+}
+section.container.my-5 {
+  flex: 1;
+  margin-top: 0 !important; 
+  margin-bottom: 0 !important;
+  padding: 0;
+}
+
+/* ===== hr (구분선) 여백 제거 ===== */
+hr {
+  margin: 0 !important;
+}
+
 
     .profile-box {
       max-width: 600px;
@@ -105,7 +126,7 @@
 
       <!-- 기자 전용 버튼 -->
       <c:if test="${sessionScope.loginUser.grade == 'R'}">
-        <a href="${pageContext.request.contextPath}/Article/Write.do" 
+        <a href="${pageContext.request.contextPath}/Board/Write.do" 
            class="btn mt-2" style="width:200px;">신규 기사 등록</a>
       </c:if>
     </div>
@@ -117,125 +138,107 @@
   <section class="container my-5">
 
     <c:choose>
-      <!-- 기자용 -->
-      <c:when test="${sessionScope.loginUser.grade == 'R'}">
-        <h4 class="text-center mb-4">내가 작성한 기사</h4>
+  <%-- 기자용 --%>
+  <c:when test="${sessionScope.loginUser.grade == 'R'}">
+    <h4 class="text-center mb-4">내가 작성한 기사</h4>
 
-        <c:if test="${empty articleList}">
-          <div class="text-center text-muted my-5">등록한 여행 기사가 없습니다.</div>
-        </c:if>
+    <c:if test="${empty boardLists}">
+      <div class="text-center text-muted my-5">등록한 여행 기사가 없습니다.</div>
+    </c:if>
 
-        <div class="row g-4">
-          <c:forEach var="article" items="${articleList}">
-            <div class="col-md-4 col-lg-3">
-              <a href="${pageContext.request.contextPath}/ArticleDetail.do?board_id=${article.board_id}"
-                 class="text-decoration-none text-dark">
-                <div class="card travel-card h-100">
-                  <img src="${pageContext.request.contextPath}/upload/${article.img_sfilename}" 
-                       class="card-img-top" alt="${article.title}">
-                  <div class="card-body">
-                    <h6 class="card-title fw-bold">${article.title}</h6>
-                    <p class="card-text small text-muted">${article.details}</p>
-                  </div>
-                </div>
-              </a>
-            </div>
-          </c:forEach>
-        </div>
-      </c:when>
-
-      <!-- 일반 유저용 -->
-      <c:otherwise>
-        <h4 class="text-center mb-4">내가 좋아요한 게시글</h4>
-        <div class="row g-4">
-          <c:forEach var="post" items="${likedList}">
-            <div class="col-md-4 col-lg-3">
-              <a href="${pageContext.request.contextPath}/ArticleDetail.do?board_id=${post.board_id}" 
-                 class="text-decoration-none text-dark">
-                <div class="card travel-card h-100">
-                  <img src="${pageContext.request.contextPath}/upload/${post.img_sfilename}" 
-                       class="card-img-top" alt="${post.title}">
-                  <div class="card-body">
-                    <h6 class="card-title fw-bold">${post.title}</h6>
-                    <p class="card-text small text-muted">${post.details}</p>
-                  </div>
-                </div>
-              </a>
-            </div>
-          </c:forEach>
-        </div>
-
-        <h4 class="text-center mb-4 mt-5">내가 댓글 단 게시글</h4>
-        <div class="row g-4">
-          <c:forEach var="post" items="${commentedList}">
-            <div class="col-md-4 col-lg-3">
-              <a href="${pageContext.request.contextPath}/ArticleDetail.do?board_id=${post.board_id}" 
-                 class="text-decoration-none text-dark">
-                <div class="card travel-card h-100">
-                  <img src="${pageContext.request.contextPath}/upload/${post.img_sfilename}" 
-                       class="card-img-top" alt="${post.title}">
-                  <div class="card-body">
-                    <h6 class="card-title fw-bold">${post.title}</h6>
-                    <p class="card-text small text-muted">${post.details}</p>
-                  </div>
-                </div>
-              </a>
-            </div>
-          </c:forEach>
-        </div>
-
-        <!-- 친구 목록 -->
-        <h4 class="text-center mb-4 mt-5">내 친구 목록</h4>
-
-        <!-- 친구 검색/요청 -->
-        <div class="text-center mb-4">
-          <form action="${pageContext.request.contextPath}/Friend/Search.do" method="get" class="d-inline-block">
-            <input type="text" name="keyword" placeholder="친구 이름 또는 ID 검색"
-                   class="form-control d-inline-block" style="width: 250px;">
-            <button type="submit" class="btn btn-primary">검색</button>
-          </form>
-          <a href="${pageContext.request.contextPath}/Friend/Requests.do" class="btn btn-outline-secondary ms-2">
-            친구 요청 관리
-          </a>
-        </div>
-
-        <div class="row g-4">
-          <c:if test="${empty friendList}">
-            <div class="text-center text-muted my-5">등록된 친구가 없습니다.</div>
-          </c:if>
-
-          <c:forEach var="friend" items="${friendList}">
-            <div class="col-md-4 col-lg-3">
-              <div class="card text-center p-3 shadow-sm">
-                <img src="${pageContext.request.contextPath}/upload/${friend.profile_img}" 
-                     alt="프로필" class="rounded-circle mx-auto mb-3" 
-                     style="width:80px; height:80px; object-fit:cover;">
-                <h6 class="fw-bold mb-1">${friend.name}</h6>
-                <p class="text-muted small mb-2">@${friend.userid}</p>
-                <p class="small text-secondary">${friend.intro}</p>
-                <form action="${pageContext.request.contextPath}/Friend/Delete.do" method="post">
-                  <input type="hidden" name="friend_id" value="${friend.userid}">
-                  <button type="submit" class="btn btn-outline-danger btn-sm">삭제</button>
-                </form>
+    <div class="row g-4">
+      <c:forEach var="article" items="${boardLists}">
+        <div class="col-md-4 col-lg-3">
+          <a href="${pageContext.request.contextPath}/Board/View.do?boardId=${article.boardId}"
+             class="text-decoration-none text-dark">
+            <div class="card travel-card h-100">
+              <img src="${pageContext.request.contextPath}/Uploads/${article.imgSfilename}" 
+                   class="card-img-top" alt="${article.title}">
+              <div class="card-body">
+                <h6 class="card-title fw-bold">${article.title}</h6>
+                <p class="card-text small text-muted">${article.details}</p>
               </div>
             </div>
-          </c:forEach>
+          </a>
         </div>
-      </c:otherwise>
-    </c:choose>
+      </c:forEach>
+    </div>
+
+    <%-- 기자 페이징 --%>
+    <nav>
+      <ul class="pagination justify-content-center">
+        <c:out value="${map.pagingImg}" escapeXml="false" />
+      </ul>
+    </nav>
+  </c:when>
+</c:choose>
+
+<!-- 👇 아래 부분은 기자/일반유저 공통으로 노출 -->
+<hr class="my-5" />
+
+<h4 class="text-center mb-4">내가 좋아요한 게시글</h4>
+<div class="row g-4">
+  <c:forEach var="post" items="${likedLists}">
+    <div class="col-md-4 col-lg-3">
+      <a href="${pageContext.request.contextPath}/Board/View.do?boardId=${post.boardId}" 
+         class="text-decoration-none text-dark">
+        <div class="card travel-card h-100">
+          <img src="${pageContext.request.contextPath}/Uploads/${post.imgSfilename}" 
+               class="card-img-top" alt="${post.title}">
+          <div class="card-body">
+            <h6 class="card-title fw-bold">${post.title}</h6>
+            <p class="card-text small text-muted">${post.details}</p>
+          </div>
+        </div>
+      </a>
+    </div>
+  </c:forEach>
+</div>
+
+<nav>
+  <ul class="pagination justify-content-center">
+    <c:out value="${map.likedPaging}" escapeXml="false" />
+  </ul>
+</nav>
+
+<h4 class="text-center mb-4 mt-5">내가 댓글 단 게시글</h4>
+<div class="row g-4">
+  <c:forEach var="post" items="${commentedLists}">
+    <div class="col-md-4 col-lg-3">
+      <a href="${pageContext.request.contextPath}/Board/View.do?boardId=${post.boardId}" 
+         class="text-decoration-none text-dark">
+        <div class="card travel-card h-100">
+          <img src="${pageContext.request.contextPath}/Uploads/${post.imgSfilename}" 
+               class="card-img-top" alt="${post.title}">
+          <div class="card-body">
+            <h6 class="card-title fw-bold">${post.title}</h6>
+            <p class="card-text small text-muted">${post.details}</p>
+          </div>
+        </div>
+      </a>
+    </div>
+  </c:forEach>
+</div>
+
+<nav>
+  <ul class="pagination justify-content-center">
+    <c:out value="${map.commentPaging}" escapeXml="false" />
+  </ul>
+</nav>
+
   </section>
 
-  <!-- 페이지네이션 (예시용) -->
-  <nav>
-    <ul class="pagination justify-content-center">
-      <li class="page-item"><a class="page-link" href="#">&laquo;</a></li>
-      <li class="page-item"><a class="page-link" href="#">1</a></li>
-      <li class="page-item"><a class="page-link" href="#">2</a></li>
-      <li class="page-item"><a class="page-link" href="#">3</a></li>
-      <li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
-    </ul>
-  </nav>
 
+	<%-- 기자 전용 페이징 처리 --%>
+	<c:if test="${sessionScope.loginUser.grade == 'R'}">
+	  <nav>
+	    <ul class="pagination justify-content-center">
+	      <c:out value="${map.pagingImg}" escapeXml="false" />
+	    </ul>
+	  </nav>
+	</c:if>
+
+  <jsp:include page="/Resources/Footer.jsp" />
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
           crossorigin="anonymous"></script>

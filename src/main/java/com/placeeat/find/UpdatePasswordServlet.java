@@ -7,7 +7,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
-@WebServlet("/member/updatePassword.do")
+@WebServlet("/Member/updatePassword.do")
 public class UpdatePasswordServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
@@ -17,13 +17,13 @@ public class UpdatePasswordServlet extends HttpServlet {
 
         if (token == null || token.isEmpty()) {
             request.setAttribute("message", "잘못된 요청입니다.");
-            request.getRequestDispatcher("/member/ForgotPassword.jsp").forward(request, response);
+            request.getRequestDispatcher("/Member/ForgotPassword.jsp").forward(request, response);
             return;
         }
         if (!newPassword.equals(confirm)) {
             request.setAttribute("message", "비밀번호가 일치하지 않습니다.");
             request.setAttribute("token", token);
-            request.getRequestDispatcher("/member/ResetPassword.jsp").forward(request, response);
+            request.getRequestDispatcher("/Member/ResetPassword.jsp").forward(request, response);
             return;
         }
 
@@ -31,7 +31,7 @@ public class UpdatePasswordServlet extends HttpServlet {
         MemberVO m = dao.findMemberByToken(token);
         if (m == null) {
             request.setAttribute("message", "유효하지 않은 token입니다.");
-            request.getRequestDispatcher("/member/ForgotPassword.jsp").forward(request, response);
+            request.getRequestDispatcher("/Member/ForgotPassword.jsp").forward(request, response);
             return;
         }
 
@@ -40,6 +40,6 @@ public class UpdatePasswordServlet extends HttpServlet {
         dao.clearResetToken(m.getUserid());
 
         request.setAttribute("message", "비밀번호가 변경되었습니다. 로그인 해주세요.");
-        request.getRequestDispatcher("/member/Login.jsp").forward(request, response);
+        request.getRequestDispatcher("/Member/Login.jsp").forward(request, response);
     }
 }

@@ -2,12 +2,14 @@ package com.placeeat.board.controller;
 
 import java.io.IOException;
 import com.placeeat.board.dao.CommentDAO;
+import com.placeeat.dao.MemberVO;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @WebServlet("/Board/Delete.do")
 public class CommentDeleteController extends HttpServlet {
@@ -23,7 +25,9 @@ public class CommentDeleteController extends HttpServlet {
         int boardId = Integer.parseInt(req.getParameter("boardId"));
 
         /* 실제 로그인 사용 시*/
-        String userId = (String) req.getSession().getAttribute("userId");
+        HttpSession session = req.getSession();
+        MemberVO loginUser = (MemberVO) session.getAttribute("loginUser");
+        String userId = loginUser.getUserid();
         if (userId == null) {
             resp.sendRedirect(req.getContextPath() + "/Login.do");
             return;

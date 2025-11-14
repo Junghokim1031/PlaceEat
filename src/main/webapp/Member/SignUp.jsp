@@ -14,6 +14,7 @@
         crossorigin="anonymous" />
 
   <link rel="stylesheet" href="${pageContext.request.contextPath}/Resources/CSS/Header.css">
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/Resources/CSS/Footer.css">
 
   <style>
   	
@@ -253,7 +254,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <button type="submit" class="btn btn-join">가입하기</button>
     </form>
   </div>
-
+  <jsp:include page="/Resources/Footer.jsp" />
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
           crossorigin="anonymous"></script>

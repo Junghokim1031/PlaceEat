@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.placeeat.utils.DBConnPool;
+import com.placeeat.util.DBConnPool;
 
 public class BoardDAO extends DBConnPool {
 	
@@ -73,10 +73,115 @@ public class BoardDAO extends DBConnPool {
 
 	
 		//글 수정
-		//글 삭제
+   public int updateBoard(BoardDTO dto) {
+	    try {
+	        String sql = "UPDATE BOARD_TABLE "
+	                   + "SET TITLE = ?, CONTENT = ?, DETAILS = ?, HASHTAG_NAME = ?, LOCATION_NAME = ?, "
+	                   + "LATITUDE = ?, LONGITUDE = ?, IMG_OFILENAME = ?, IMG_SFILENAME = ? "
+	                   + "WHERE BOARD_ID = ?";
+	        psmt = con.prepareStatement(sql);
+	        psmt.setString(1, dto.getTitle());
+	        psmt.setString(2, dto.getContent());
+	        psmt.setString(3, dto.getDetails());
+	        psmt.setString(4, dto.getHashtagName());
+	        psmt.setString(5, dto.getLocationName());
+	        psmt.setDouble(6, dto.getLatitude());
+	        psmt.setDouble(7, dto.getLongitude());
+	        psmt.setString(8, dto.getImgOfilename());
+	        psmt.setString(9, dto.getImgSfilename());
+	        psmt.setInt(10, dto.getBoardId());
+	        return psmt.executeUpdate();
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	    return 0;
+	}
+	
+			
+	// 게시글 삭제 (연관 맛집도 함께 삭제)
+   public int deleteBoard(int boardId) {
+	    int result = 0;
+	    try {
+	        // Disable auto-commit for transaction
+	        con.setAutoCommit(false);
+	        
+	        // 1) Delete likes first (if exists)
+	        String deleteLikesSql = "DELETE FROM boardlike_table WHERE board_id = ?";
+	        psmt = con.prepareStatement(deleteLikesSql);
+	        psmt.setInt(1, boardId);
+	        psmt.executeUpdate();
+	        psmt.close();
+	        
+	        // 2) Delete comments (if exists)
+	        String deleteCommentsSql = "DELETE FROM comment_table WHERE board_id = ?";
+	        psmt = con.prepareStatement(deleteCommentsSql);
+	        psmt.setInt(1, boardId);
+	        psmt.executeUpdate();
+	        psmt.close();
+	        
+	        // 3) Delete restaurants
+	        String deleteRestSql = "DELETE FROM restaurant_table WHERE board_id = ?";
+	        psmt = con.prepareStatement(deleteRestSql);
+	        psmt.setInt(1, boardId);
+	        psmt.executeUpdate();
+	        psmt.close();
+
+	        // 4) Delete board
+	        String deleteBoardSql = "DELETE FROM board_table WHERE board_id = ?";
+	        psmt = con.prepareStatement(deleteBoardSql);
+	        psmt.setInt(1, boardId);
+	        result = psmt.executeUpdate();
+	        psmt.close();
+	        
+	        // Commit transaction
+	        con.commit();
+	        System.out.println("✅ Board " + boardId + " deleted successfully");
+
+	    } catch (Exception e) {
+	        System.err.println("❌ Delete failed for board " + boardId);
+	        e.printStackTrace();
+	        try {
+	            con.rollback(); // Rollback on error
+	        } catch (Exception ex) {
+	            ex.printStackTrace();
+	        }
+	    } finally {
+	        try {
+	            con.setAutoCommit(true); // Reset auto-commit
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+	    }
+	    return result;
+	}
+
 	
 /* ==============================================================게시물 상세보기=======================================================*/
 	
+		// 조회수 증가 메서드
+		   public void increaseViewCount(int boardId) {
+		       String sql = "UPDATE board_table SET viewcount = viewcount + 1 WHERE board_id = ?";
+		       try {
+		           psmt = con.prepareStatement(sql);
+		           psmt.setInt(1, boardId);
+		           psmt.executeUpdate();
+		
+		           try {
+		               con.commit();
+		           } catch (Exception ignore) {}
+		
+		       } catch (Exception e) {
+		           System.out.println("[오류] 조회수 증가 중 예외 발생");
+		           e.printStackTrace();
+		       } finally {
+		           try {
+		               if (psmt != null) psmt.close();
+		           } catch (SQLException e) {
+		               e.printStackTrace();
+		           }
+		       }
+		   }
+		   
 		//게시물 상세보기
 	    public BoardDTO selectView(int boardId) {
 	        BoardDTO dto = new BoardDTO();  // DTO 객체 생성
@@ -607,6 +712,136 @@ public class BoardDAO extends DBConnPool {
 		    return boardList;
 		    
 		}
+		
+		// 특정 사용자가 '좋아요'한 게시글 목록을 반환합니다.
+				public List<BoardDTO> selectLikedBoards(String userId, int start, int end) {
+				    List<BoardDTO> likedLists = new ArrayList<>();
+				    String sql = "SELECT * FROM ( "
+				               + "  SELECT ROWNUM AS rnum, a.* FROM ( "
+				               + "    SELECT b.* "
+				               + "    FROM board_table b "
+				               + "    JOIN boardlike_table l ON b.board_id = l.board_id "
+				               + "    WHERE l.user_id = ? "
+				               + "    ORDER BY b.created_at DESC "
+				               + "  ) a "
+				               + ") WHERE rnum BETWEEN ? AND ?";
+
+				    try {
+				        psmt = con.prepareStatement(sql);
+				        psmt.setString(1, userId);
+				        psmt.setInt(2, start);
+				        psmt.setInt(3, end);
+				        rs = psmt.executeQuery();
+
+				        while (rs.next()) {
+				            BoardDTO dto = new BoardDTO();
+				            dto.setBoardId(rs.getInt("board_id"));
+				            dto.setUserId(rs.getString("user_id"));
+				            dto.setTitle(rs.getString("title"));
+				            dto.setContent(rs.getString("content"));
+				            dto.setImgSfilename(rs.getString("img_sfilename"));
+				            dto.setImgOfilename(rs.getString("img_ofilename"));
+				            dto.setCreatedAt(rs.getDate("created_at"));
+				            likedLists.add(dto);
+				        }
+				    } catch (SQLException e) {
+				        e.printStackTrace();
+				    } finally {
+				        try {
+				            if (rs != null) rs.close();
+				            if (psmt != null) psmt.close();
+				        } catch (SQLException e) {}
+				    }
+				    return likedLists;
+				}
+
+
+				// 특정 사용자가 댓글을 단 게시글 목록을 반환합니다. 
+				public List<BoardDTO> selectCommentedBoards(String userId, int start, int end) {
+				    List<BoardDTO> commentedLists = new ArrayList<>();
+				    String sql = "SELECT * FROM ( "
+				               + "  SELECT ROWNUM AS rnum, a.* FROM ( "
+				               + "    SELECT DISTINCT b.* "
+				               + "    FROM board_table b "
+				               + "    JOIN comment_table c ON b.board_id = c.board_id "
+				               + "    WHERE c.user_id = ? "
+				               + "    ORDER BY b.created_at DESC "
+				               + "  ) a "
+				               + ") WHERE rnum BETWEEN ? AND ?";
+
+				    try {
+				        psmt = con.prepareStatement(sql);
+				        psmt.setString(1, userId);
+				        psmt.setInt(2, start);
+				        psmt.setInt(3, end);
+				        rs = psmt.executeQuery();
+
+				        while (rs.next()) {
+				            BoardDTO dto = new BoardDTO();
+				            dto.setBoardId(rs.getInt("board_id"));
+				            dto.setUserId(rs.getString("user_id"));
+				            dto.setTitle(rs.getString("title"));
+				            dto.setContent(rs.getString("content"));
+				            dto.setImgSfilename(rs.getString("img_sfilename"));
+				            dto.setImgOfilename(rs.getString("img_ofilename"));
+				            dto.setCreatedAt(rs.getDate("created_at"));
+				            commentedLists.add(dto);
+				        }
+				    } catch (SQLException e) {
+				        e.printStackTrace();
+				    } finally {
+				        try {
+				            if (rs != null) rs.close();
+				            if (psmt != null) psmt.close();
+				        } catch (SQLException e) {}
+				    }
+				    return commentedLists;
+				}
+
+
+				// 사용자가 좋아요한 게시글 수 카운트
+				public int countLikedBoards(String userId) {
+				    int count = 0;
+				    String sql = "SELECT COUNT(*) FROM boardlike_table WHERE user_id = ?";
+				    try {
+				        psmt = con.prepareStatement(sql);
+				        psmt.setString(1, userId);
+				        rs = psmt.executeQuery();
+				        if (rs.next()) {
+				            count = rs.getInt(1);
+				        }
+				    } catch (SQLException e) {
+				        e.printStackTrace();
+				    } finally {
+				        try {
+				            if (rs != null) rs.close();
+				            if (psmt != null) psmt.close();
+				        } catch (SQLException e) {}
+				    }
+				    return count;
+				}
+
+				// 사용자가 댓글을 단 게시글 수 카운트
+				public int countCommentedBoards(String userId) {
+				    int count = 0;
+				    String sql = "SELECT COUNT(DISTINCT board_id) FROM comment_table WHERE user_id = ?";
+				    try {
+				        psmt = con.prepareStatement(sql);
+				        psmt.setString(1, userId);
+				        rs = psmt.executeQuery();
+				        if (rs.next()) {
+				            count = rs.getInt(1);
+				        }
+				    } catch (SQLException e) {
+				        e.printStackTrace();
+				    } finally {
+				        try {
+				            if (rs != null) rs.close();
+				            if (psmt != null) psmt.close();
+				        } catch (SQLException e) {}
+				    }
+				    return count;
+				}
 
 
 //===================================================================마이 페이지 끝=============================================================//	

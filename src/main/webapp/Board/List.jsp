@@ -27,17 +27,6 @@
 <body class="container-fluid p-0 m-0">
     <jsp:include page="/Resources/Header.jsp" />
     
-    <!-- ============================================ -->
-	<!-- 🧪 TEST MODE: Simulate logged-in user -->
-	<!-- ============================================ -->
-	<%
-	    // TEST ONLY: Simulate user login for like button testing
-	    // TODO: REMOVE THIS BEFORE PRODUCTION!
-	    /*if (session.getAttribute("userId") == null) {
-	        session.setAttribute("userId", "user001");
-	        System.out.println("🧪 TEST MODE: Created test session with userId = user001");
-	    }*/
-	%>
     
     <!-- 검색창 (상단) -->
     <div>
@@ -90,12 +79,7 @@
             </div>
             <br>
             
-            <!-- 글쓰기 버튼 (모바일에서 보이도록) -->
-            <div class="d-lg-none text-center mb-3">
-                <a href="${pageContext.request.contextPath}/Board/Write.do" class="btn w-75" role="button">
-                    글쓰기 ✏️
-                </a>
-            </div>
+           
         </div>
         
         <!-- 우측: 검색/필터 -->
@@ -105,9 +89,19 @@
                 <!-- Hidden inputs container -->
                 <div id="hiddenHost"></div>
                 
-                <!-- 검색 버튼 -->
-                <button type="submit" class="btn w-100 my-3">검색하기</button>
-                
+               <!-- 글쓰기 버튼 (데스크톱에서만 표시) -->
+               <c:if test='${grade eq "R"}'>
+               		 <!-- 글쓰기 버튼 (모바일에서 보이도록) -->
+		            <div class="d-lg-none text-center mb-3">
+		                <a href="${pageContext.request.contextPath}/Board/Write.do" class="btn w-100" role="button">
+		                    글쓰기 ✏️
+		                </a>
+		            </div>
+		            <a href="${pageContext.request.contextPath}/Board/Write.do" 
+		               class="w-100 my-3 btn d-none d-lg-block" role="button">
+		                글쓰기 ✏️
+		            </a>
+                </c:if>
                 <!-- 텍스트 검색 조건 -->
                 <div class="mb-3">
                     <label class="form-label">검색 조건</label>
@@ -165,13 +159,12 @@
                         </c:forEach>
                     </div>
                 </div>
+             <!-- 검색 버튼 -->
+                <button type="submit" class="btn w-100 my-3">검색하기</button>
             </form>
             
-            <!-- 글쓰기 버튼 (데스크톱에서만 표시) -->
-            <a href="${pageContext.request.contextPath}/Board/Write.do" 
-               class="w-100 my-3 btn d-none d-lg-block" role="button">
-                글쓰기 ✏️
-            </a>
+            
+            
         </div>
     </div>
     

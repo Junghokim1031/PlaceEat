@@ -43,9 +43,9 @@
 			<br>
 			<h6 class="fw-bold">빠른 링크</h6>
 	        <ul class="list-unstyled">
-	        	<li><a href="../MainController.java" class="text-decoration-none text-muted">홈페이지 보기</a></li>
-	        	<li><a href="../ListController.java" class="text-decoration-none text-muted">게시글 보기</a></li>
-	        	<li><a href="../MemberLogin.java" class="text-decoration-none text-muted">로그인</a></li>
+	        	<li><a href="../Board/Main.do" class="text-decoration-none text-muted">홈페이지 보기</a></li>
+	        	<li><a href="../Board/List.do" class="text-decoration-none text-muted">게시글 보기</a></li>
+	        	<li><a href="../Member/Login.do" class="text-decoration-none text-muted">로그인</a></li>
 	    	</ul>
 	    	개발자: PLACE-EAT팀
 		</div>

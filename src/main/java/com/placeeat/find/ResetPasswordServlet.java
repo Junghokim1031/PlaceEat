@@ -6,7 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
-@WebServlet("/member/resetPassword.do")
+@WebServlet("/Member/resetPassword.do")
 public class ResetPasswordServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -22,7 +22,7 @@ public class ResetPasswordServlet extends HttpServlet {
 
         // 토큰이 유효하면 비밀번호 재설정 JSP로 이동
         request.setAttribute("token", token);
-        request.getRequestDispatcher("/member/ResetPassword.jsp").forward(request, response);
+        request.getRequestDispatcher("/Member/ResetPassword.jsp").forward(request, response);
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -34,14 +34,15 @@ public class ResetPasswordServlet extends HttpServlet {
 
         if (userid == null) {
             request.setAttribute("message", "유효하지 않은 토큰입니다.");
-            request.getRequestDispatcher("/member/Login.jsp").forward(request, response);
+            request.getRequestDispatcher("/Member/Login.jsp").forward(request, response);
             return;
         }
 
-        dao.updatePassword(userid, newPw);
+        String hashed = org.mindrot.jbcrypt.BCrypt.hashpw(newPw, org.mindrot.jbcrypt.BCrypt.gensalt(12));
+        dao.updatePassword(userid, hashed);
         dao.clearResetToken(userid);
 
         request.setAttribute("message", "비밀번호가 성공적으로 변경되었습니다.");
-        request.getRequestDispatcher("/member/Login.jsp").forward(request, response);
+        request.getRequestDispatcher("/Member/Login.jsp").forward(request, response);
     }
 }

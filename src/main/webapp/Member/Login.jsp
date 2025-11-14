@@ -5,7 +5,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>로그인</title>
+  <title>로그인 | Place & Eat</title>
 
   <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
@@ -13,47 +13,17 @@
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
         crossorigin="anonymous">
 
-  <!-- 로그인 관련 스크립트 -->
-  <script type="text/javascript" src="${pageContext.request.contextPath}/Resources/script/member.js"></script>
-
+  <!-- Header CSS -->
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/Resources/CSS/Header.css">
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/Resources/CSS/Footer.css">
+  
   <style>
-    /* ================================
-       기본 스타일
-    ================================ */
     body {
       font-family: 'Arial', sans-serif;
       background-color: #ffffff;
       padding-bottom: 100px;
     }
 
-    header {
-      background-color: #ffffff;
-      font-weight: bolder;
-    }
-
-    header img {
-      width: 100px;
-      height: auto;
-    }
-
-    .header-divider {
-      height: 4px;
-      background: linear-gradient(to right, #bdf3ff, #2193b0);
-      border: none;
-    }
-
-    footer {
-      background-color: #f5f5f5;
-      text-align: center;
-      padding: 20px 0;
-      position: relative;
-      bottom: 0;
-      width: 100%;
-    }
-
-    /* ================================
-       로그인 박스
-    ================================ */
     .login-box {
       max-width: 400px;
       margin: 100px auto;
@@ -111,48 +81,62 @@
 
 <body>
 
-  <%@ include file="/Resources/Header.jsp" %>
+  <!-- Header include -->
+  <jsp:include page="/Resources/Header.jsp" />
 
   <!-- ============================= -->
-  <!--  로그인 폼 -->
+  <!-- 로그인 박스 -->
   <!-- ============================= -->
   <div class="login-box">
     <div class="login-title">로그인</div>
 
-    <!--  로그인 실패 시 에러 메시지 -->
-    <c:if test="${not empty errorMsg}">
-      <div class="alert alert-danger text-center">${errorMsg}</div>
+    <!-- 로그인 실패 메시지 -->
+    <c:if test="${not empty message}">
+      <div class="alert alert-danger text-center">${message}</div>
     </c:if>
 
-    <!-- ============================= -->
-    <!-- 로그인 폼 영역 -->
-    <!-- ============================= -->
-    <form action="${pageContext.request.contextPath}/Login.do" method="post" name="frm">
+    <!-- 로그인 폼 -->
+    <form action="${pageContext.request.contextPath}/Member/Login.do" method="post" name="frm">
       
-      <!-- 아이디 입력 -->
+      <!-- 아이디 -->
       <div class="mb-3">
-        <label for="userId" class="form-label">아이디</label>
-        <input type="text" id="userId" name="userId" class="form-control"
-               placeholder="아이디를 입력하세요" value="${param.userId}" required>
+        <label for="userid" class="form-label">아이디</label>
+        <input type="text" id="userid" name="userid" class="form-control"
+               placeholder="아이디를 입력하세요"
+               value="${cookie.userid.value}" required>
       </div>
 
-      <!-- 비밀번호 입력 -->
+      <!-- 비밀번호 -->
       <div class="mb-3">
-        <label for="userPw" class="form-label">비밀번호</label>
-        <input type="password" id="userPw" name="password" class="form-control"
+        <label for="pwd" class="form-label">비밀번호</label>
+        <input type="password" id="pwd" name="pwd" class="form-control"
                placeholder="비밀번호를 입력하세요" required>
       </div>
 
-      <!-- 로그인 버튼 -->
+      <!-- 로그인 상태 유지 -->
+      <div class="form-check mb-3">
+        <input type="checkbox" class="form-check-input" id="remember" name="remember"
+               <c:if test="${not empty cookie.userid.value}">checked</c:if>>
+        <label class="form-check-label" for="remember">로그인 상태 유지</label>
+      </div>
+      
+
+      <!-- 버튼 -->
       <button type="submit" class="btn btn-login">로그인</button>
     </form>
 
-    <!-- 회원가입 링크 -->
+        <!-- 아이디/비밀번호 찾기 -->
+    <div class="signup-link" style="margin-top: 10px; font-size: 14px;">
+      <a href="${pageContext.request.contextPath}/Member/findId.do" style="margin-right: 10px;">아이디 찾기</a> |
+      <a href="${pageContext.request.contextPath}/Member/findPwd.do" style="margin-left: 10px;">비밀번호 찾기</a>
+    </div>
+    
+    <!-- 회원가입 -->
     <div class="signup-link">
-      <a href="${pageContext.request.contextPath}/Member/SignUp.jsp">회원가입</a>
+      <a href="${pageContext.request.contextPath}/Member/join.do">회원가입</a>
     </div>
   </div>
-
+  <jsp:include page="/Resources/Footer.jsp" />
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
           crossorigin="anonymous"></script>

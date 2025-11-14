@@ -4,27 +4,27 @@
 <header class="py-3">
   <div class="container d-flex justify-content-between align-items-center">
     <!-- 로고 -->
-    <a href="${pageContext.request.contextPath}/Main.do">
+    <a href="${pageContext.request.contextPath}/Board/Main.do">
       <img src="${pageContext.request.contextPath}/Resources/Img/Logo.png" alt="로고">
     </a>
     
     <!-- 네비게이션 -->
     <nav>
-      <a href="${pageContext.request.contextPath}/Main.do" class="me-3 text-dark text-decoration-none">홈</a>
+      <a href="${pageContext.request.contextPath}/Board/Main.do" class="me-3 text-dark text-decoration-none">홈</a>
       <a href="${pageContext.request.contextPath}/Board/List.do" class="me-3 text-dark text-decoration-none">추천 여행 기사</a>
 
       <c:choose>
         <c:when test="${not empty sessionScope.loginUser}">
           <a href="${pageContext.request.contextPath}/Member/logout.do" 
              class="me-3 text-dark text-decoration-none">로그아웃</a>
-          <a href="${pageContext.request.contextPath}/Member/MyPage.do" 
+          <a href="${pageContext.request.contextPath}/Member/Mypage.do" 
              class="text-dark text-decoration-none">마이페이지</a>
         </c:when>
 
         <c:otherwise>
-          <a href="${pageContext.request.contextPath}/Member/Login.jsp" 
+          <a href="${pageContext.request.contextPath}/Member/Login.do" 
              class="me-3 text-dark text-decoration-none">로그인</a>
-          <a href="${pageContext.request.contextPath}/Member/SignUp.jsp" 
+          <a href="${pageContext.request.contextPath}/Member/join.do" 
              class="text-dark text-decoration-none">회원가입</a>
         </c:otherwise>
       </c:choose>
